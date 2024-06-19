@@ -5,42 +5,43 @@ load_dotenv()  # take environment variables from .env.
 import streamlit as st
 import os
 import google.generativeai as genai
-#this is edited
+
 os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+generation_config = {
+  "temperature": 1,
+  "top_p": 0.95,
+  "top_k": 64,
+  "max_output_tokens": 8192,
+  "response_mime_type": "text/plain",
+}
 
-def get_gemini_response(input,input_prompt):
-    model = genai.GenerativeModel('gemini-pro')
-    response = model.generate_content([input,input_prompt])
-    return response.text
+model = genai.GenerativeModel(
+  model_name="gemini-pro",
+  generation_config=generation_config,
+  # safety_settings = Adjust safety settings
+  # See https://ai.google.dev/gemini-api/docs/safety-settings
+)
 
 ##initialize our streamlit app
 
-st.set_page_config(page_title="Roadmap generator")
+st.title("Roadmap AI")
+st.subheader("Welcome")
 
-st.header("Roadmap generator")
-input = st.text_input("what do you want to learn")  
+with st.sidebar:
+    st.title("Input")
+    st.write("You can click on Create button multiple times to generate a perfect roadmap")
+    course = st.text_input("topic")
+    
 
-submit=st.button("Roadmap")
+    
 
-input_prompt = """
-               f"Given the user-specified topic {input} , create a comprehensive, and 
-               structured learning roadmap. roadmap should be topics specified. 
-               This roadmap should cover fundamental concepts and advanced techniques 
-               related to. For example. It should progress to more advanced topics. Ensure that each topic logically builds 
-               on the previous one, providing a clear and achievable pathway for learning 
-               and skill development. At the end of the roadmap, include a segment discussing 
-               practical applications or real-world use cases, demonstrating how the language 
-               concepts learned can be applied in various domains."
-               """
+    prompt = [
+        f"generate a detailed and comprehensive {course} roadmap and make sure roadmap is realistic and include all the topics with basics. roadmap should contain only basic topics and just list out its applications at the end. Ensure that content is original, informative and maintain a consistent throughput. roadmap must be detailed"
+    ]
 
+    response = model.generate_content(prompt)
+    submit_button = st.button("Create")
 
-if submit:
-    response=get_gemini_response(input,input_prompt)
-    st.subheader("The Response is")
-    st.write(response)
-
-
-
-
-
+if submit_button:
+    st.write(response.text)
