@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 
 # Function to generate content based on a course input
-def generate_course_roadmap(course):
+def generate_course_quiz(course):
     # Load environment variables if needed
     load_dotenv()
 
@@ -26,14 +26,13 @@ def generate_course_roadmap(course):
 
     # Prompt to generate a detailed roadmap for the specified course
     prompt = [
-        f"Generate a detailed and comprehensive {course} roadmap and make sure the roadmap is realistic and includes all the topics with basics. The roadmap should contain only basic topics and just list out its applications at the end. Ensure that content is original, informative, and maintains a consistent throughput. The roadmap must be detailed."
+        f"generate a profession quiz of 10 questions with 4 options based on {course} and also include codding snippet questions. level of difficulty should be medium. and generate in json format like in key value pair with 4 keys (id, question, option , answer)."
     ]
 
     # Generate content based on the prompt
     response = model.generate_content(prompt)
 
     # Extract the generated text from the response
-    res = response.text
+    quiz = response.text
 
-    return res
-
+    return quiz
