@@ -15,7 +15,6 @@ config = {
   "messagingSenderId": "595401935708",
   "appId": "1:595401935708:web:a0ee6c32a345713f930f99",
   "measurementId": "G-ZLCG76PVW3"
-
 }
 
 firebase = pyrebase.initialize_app(config)
