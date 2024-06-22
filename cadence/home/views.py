@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
 config = {
-    "apiKey": "${API_KEY}",
+    "apiKey": "${}",
   "authDomain": "test-6ef0b.firebaseapp.com",
   "databaseURL": "https://test-6ef0b-default-rtdb.asia-southeast1.firebasedatabase.app",
   "projectId": "test-6ef0b",
