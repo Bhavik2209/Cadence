@@ -14,7 +14,7 @@ class UserRegForm(UserCreationForm):
         'placeholder': 'Username',
         'style': 'outline: none;'  # Additional inline style for outline
     }))
-    
+
     password1 = forms.CharField(widget=forms.PasswordInput(attrs={
         'class': 'bg-gray-50 border-none text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-none block w-full p-2.5 dark:bg-gray-700 dark:border-none dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-none',
         'placeholder': 'Password',
