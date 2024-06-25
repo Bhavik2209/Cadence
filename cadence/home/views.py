@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .roadmap.quiz import generate_course_quiz
+
 config = {
   "apiKey": "${api_key}",
 
