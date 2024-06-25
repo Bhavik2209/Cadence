@@ -3,10 +3,10 @@ from .forms import UserRegForm,UserLoginForm
 from django.contrib.auth import logout
 
 import pyrebase
-
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from .roadmap.quiz import generate_course_quiz
 
 from .roadmap.app import generate_course_roadmap
 import re
@@ -30,7 +30,10 @@ database = firebase.database()
 def index(request):
     return render(request,"index.html")
 
-
+def quiz_view(request):
+    course = "Python"
+    quiz_html, answer_key = generate_course_quiz(course)
+    return render(request, 'quiz.html', {'quiz_html': quiz_html, 'answer_key': answer_key})
 
 def signup(request):
     if request.method == 'POST':
@@ -81,8 +84,6 @@ def user_login(request):
                 print("Login failed: ", message)
                 messages.error(request, message)
                 return render(request, "login.html", {"form": form})
-
-                return redirect("index")  # Redirect to home page after successful login
             except:
                 message = "Invalid Credentials!! Please check your data."
                 return render(request, "login.html", {"message": message, "form": form})
@@ -162,8 +163,6 @@ def generate_roadmap_html(roadmap_text):
     
     return html
 
-
-
 def path_pro(request):
     roadmap_html = None
     if request.method == "POST":
@@ -180,5 +179,3 @@ def time_track(request):
     #     form = UserLoginForm()  # Create a new form instance for GET requests
 
     # return render(request, 'login.html', {'form': form})
-
-
