@@ -3,11 +3,10 @@ from .forms import UserRegForm,UserLoginForm
 from django.contrib.auth import logout
 
 import pyrebase
-
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-
+from .roadmap.quiz import generate_course_quiz
 config = {
   "apiKey": "${api_key}",
 
@@ -27,6 +26,11 @@ database = firebase.database()
 # Create your views here.
 def index(request):
     return render(request,"index.html")
+
+def quiz_view(request):
+    course = "Python"
+    quiz_html, answer_key = generate_course_quiz(course)
+    return render(request, 'quiz.html', {'quiz_html': quiz_html, 'answer_key': answer_key})
 
 
 
@@ -79,8 +83,6 @@ def user_login(request):
                 print("Login failed: ", message)
                 messages.error(request, message)
                 return render(request, "login.html", {"form": form})
-
-                return redirect("index")  # Redirect to home page after successful login
             except:
                 message = "Invalid Credentials!! Please check your data."
                 return render(request, "login.html", {"message": message, "form": form})
@@ -104,8 +106,5 @@ def logout_user(request):
     request.session.pop('user', None)
     return redirect('index')
 
-        form = UserLoginForm()  # Create a new form instance for GET requests
-
-    return render(request, 'login.html', {'form': form})
 
 
