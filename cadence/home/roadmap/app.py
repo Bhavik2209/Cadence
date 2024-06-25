@@ -26,7 +26,7 @@ def generate_course_roadmap(course):
 
     # Prompt to generate a detailed roadmap for the specified course
     prompt = [
-        f"Generate a detailed and comprehensive {course} roadmap and make sure the roadmap is realistic and includes all the topics with basics. The roadmap should contain only basic topics and just list out its applications at the end. Ensure that content is original, informative, and maintains a consistent throughput. The roadmap must be detailed."
+        f"Generate a detailed and comprehensive {course} roadmap and make sure the roadmap is realistic and includes all the topics with basics. The roadmap should contain only basic topics and just list out its applications at the end. Ensure that content is original, informative, and maintains a consistent throughput. The roadmap must be detaileda and roadmap must be phase wise."
     ]
 
     # Generate content based on the prompt

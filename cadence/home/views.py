@@ -8,9 +8,11 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 
-config = {
-  "apiKey": "${api_key}",
+from .roadmap.app import generate_course_roadmap
+import re
 
+config = {
+  "apiKey": "AIzaSyClUwHrnTgllI4tAawe2rTY4luuYbzbuFo",
   "authDomain": "test-6ef0b.firebaseapp.com",
   "databaseURL": "https://test-6ef0b-default-rtdb.asia-southeast1.firebasedatabase.app",
   "projectId": "test-6ef0b",
@@ -104,8 +106,79 @@ def logout_user(request):
     request.session.pop('user', None)
     return redirect('index')
 
-        form = UserLoginForm()  # Create a new form instance for GET requests
+def products(request):
+    return render(request,'product.html')
 
-    return render(request, 'login.html', {'form': form})
+
+def generate_roadmap_html(roadmap_text):
+    # Break the text into lines
+    lines = roadmap_text.split('\n')
+    
+    # Initialize an empty HTML string and a flag for list items
+    html = ""
+    in_list = False
+    last_level = 0
+
+    # Function to close the list tags based on the current and last level
+    def close_lists(current_level):
+        nonlocal html, in_list, last_level
+        while last_level >= current_level:
+            html += "</ul>"
+            last_level -= 1
+        in_list = False
+    
+    # Loop through each line and convert to HTML
+    for line in lines:
+        # Remove unwanted prefixes
+        line = line.lstrip('-#* ').strip()
+        # Phase headers
+        if line.startswith("**") and line.endswith("**"):
+            close_lists(0)
+            html += f"<h2 style='font-size: 2em; margin-bottom: 10px;'>{line.strip('**').strip()}</h2>"
+        # Subheaders
+        elif line.startswith("Phase") and line.endswith("**"):
+            close_lists(1)
+            html += f"<h3 style='font-size: 1.75em; margin-bottom: 8px;'>{line.strip('**').strip()}<input type='checkbox' style='float: right; margin-right: 10px;'></h3>"
+            last_level = 1
+        # Sub-subheaders
+        elif line.startswith("*") and line.endswith(":"):
+            close_lists(2)
+            html += f"<h4 style='font-size: 1.5em; margin-bottom: 6px;'>{line.strip('*:').strip()}<input type='checkbox' style='float: right; margin-right: 10px;'></h4>"
+            last_level = 2
+        # List items
+        elif line.startswith("*"):
+            if not in_list:
+                html += "<ul>"
+                in_list = True
+            html += f"<li style='margin-bottom: 4px;'>{line.strip('*').strip()}<input type='checkbox' style='float: right; margin-right: 10px;'></li>"
+        else:
+            close_lists(0)
+            html += f"<p>{line.strip()}</p>"
+    
+    close_lists(0)
+    
+    # Wrap the HTML in a div
+    html = f"<div class='roadmap'>{html}</div>"
+    
+    return html
+
+
+
+def path_pro(request):
+    roadmap_html = None
+    if request.method == "POST":
+        course = request.POST.get('goal')
+        if course:  # Check if the course input is not empty
+            roadmap = generate_course_roadmap(course)
+            roadmap_html = generate_roadmap_html(roadmap)
+            # roadmap_html = roadmap
+    return render(request, 'path_pro.html', {'roadmap_html': roadmap_html})
+
+def time_track(request):
+    return render(request,'time_track.html')
+
+    #     form = UserLoginForm()  # Create a new form instance for GET requests
+
+    # return render(request, 'login.html', {'form': form})
 
 

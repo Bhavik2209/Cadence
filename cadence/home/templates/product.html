@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>[Your Company Name] - Products</title>
-    <link rel="stylesheet" href="product.css" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/product.css' %}"/>
   </head>
   <body>
     <header class="header">
@@ -31,7 +32,7 @@
             <li>Interactive quizzes</li>
             <li>Achievement badges</li>
           </ul>
-          <a href="#" class="cta-button">Explore PathPro</a>
+          <a href="{% url 'path_pro' %}" class="cta-button">Explore PathPro</a>
         </div>
       </div>
       <div class="product-card">
@@ -48,7 +49,7 @@
             <li>Progress monitoring</li>
             <li>Simple setup</li>
           </ul>
-          <a href="#" class="cta-button">Discover TimeTrack</a>
+          <a href="{% url 'time_track' %}" class="cta-button">Discover TimeTrack</a>
         </div>
       </div>
     </section>
