@@ -32,8 +32,8 @@ def index(request):
 
 def quiz_view(request):
     course = "Python"
-    quiz_html, answer_key = generate_course_quiz(course)
-    return render(request, 'quiz.html', {'quiz_html': quiz_html, 'answer_key': answer_key})
+    quiz_html= generate_course_quiz(course)
+    return render(request, 'quiz.html', {'quiz_html': quiz_html})
 
 def signup(request):
     if request.method == 'POST':
