@@ -10,6 +10,7 @@ from .roadmap.quiz import generate_course_quiz
 from .roadmap.app import generate_course_roadmap
 from .habits.app import generate_daily_timetable
 import re
+import json
 
 config = {
   "apiKey": "AIzaSyClUwHrnTgllI4tAawe2rTY4luuYbzbuFo",
@@ -31,9 +32,11 @@ def index(request):
     return render(request,"index.html")
 
 def quiz_view(request):
-    course = "Python"
-    quiz_html= generate_course_quiz(course)
-    return render(request, 'quiz.html', {'quiz_html': quiz_html})
+    quiz_html, answer_key = generate_course_quiz("Python")
+    # Verify answer_key here
+    print("answer key:", answer_key)
+    # Encode answer_key as JSON string
+    return render(request, 'quiz.html', {'quiz_html': quiz_html, 'answer_key': json.dumps(answer_key)})
 
 def signup(request):
     if request.method == 'POST':
@@ -170,7 +173,20 @@ def path_pro(request):
         if course:  # Check if the course input is not empty
             roadmap = generate_course_roadmap(course)
             roadmap_html = generate_roadmap_html(roadmap)
-            # roadmap_html = roadmap
+            
+            # Save roadmap to Firebase
+            user_id = request.session.get('uid')
+            if user_id:
+                data = {
+                    "user_id": user_id,
+                    "roadmap": roadmap,
+                    "is_completed": False
+                }
+                database.child("roadmaps").push(data)
+            else:
+                messages.error(request, "User not authenticated. Please log in.")
+                return redirect('login')
+
     return render(request, 'path_pro.html', {'roadmap_html': roadmap_html})
 
 def time_track(request):
@@ -248,3 +264,21 @@ def habits_pro(request):
         return render(request, 'habits.html', {'time_table':time_table})
     else:
         return render(request, 'habits.html')
+    
+
+def my_roadmaps(request):
+    user_id = request.session.get('uid')
+    if user_id:
+        roadmaps = database.child("roadmaps").order_by_child("user_id").equal_to(user_id).get().val()
+        if roadmaps:
+            roadmaps_list = [(key, value) for key, value in roadmaps.items()]
+        else:
+            roadmaps_list = []
+
+        badges = []  # Replace with your logic to get user badges
+
+        return render(request, 'my_roadmaps.html', {'roadmaps': roadmaps_list, 'badges': badges})
+    else:
+        messages.error(request, "User not authenticated. Please log in.")
+        return redirect('login')
+

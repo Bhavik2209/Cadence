@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roadmaps and Badges</title>
+    <style>
+        body {
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: black;
+        }
+        .section-title {
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .section {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 30%;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #333;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            color: white;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="section-title">Current Roadmaps</div>
+    <div class="section">
+        {% for key, roadmap in roadmaps %}
+            {% if not roadmap.is_completed %}
+                <div class="card" onclick="showModal('{{ roadmap.roadmap|escapejs }}')">
+                    <h3>Roadmap {{ forloop.counter }}</h3>
+                    <p>{{ roadmap.name }}</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="section-title">Completed Roadmaps</div>
+    <div class="section">
+        {% for key, roadmap in roadmaps %}
+            {% if roadmap.is_completed %}
+                <div class="card" onclick="showModal('{{ roadmap.roadmap|escapejs }}')">
+                    <h3>Roadmap {{ forloop.counter }}</h3>
+                    <p>{{ roadmap.name }}</p>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="section-title">Badges</div>
+    <div class="section">
+        {% for badge in badges %}
+            <div class="card" onclick="showModal('{{ badge|escapejs }}')">
+                <h3>Badge {{ forloop.counter }}</h3>
+                <p>{{ badge }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modal-text"></div>
+        </div>
+    </div>
+
+    <script>
+        function showModal(content) {
+            document.getElementById('modal-text').innerHTML = content;
+            document.getElementById('myModal').style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById('myModal').style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('myModal')) {
+                closeModal();
+            }
+        }
+    </script>
+
+</body>
+</html>
