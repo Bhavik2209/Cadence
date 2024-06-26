@@ -12,4 +12,5 @@ urlpatterns = [
     path('products/pathpro/quiz/',views.quiz_view, name='quiz_view'),
     path('products/habitpro/',views.habits_pro, name='habits_pro'),
     path('my-roadmaps/',views.my_roadmaps, name='my_roadmaps'),
+    path('save_roadmap/', views.save_roadmap, name='save_roadmap'),
 ]

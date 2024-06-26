@@ -2,6 +2,10 @@ from django.shortcuts import render,redirect
 from .forms import UserRegForm,UserLoginForm
 from django.contrib.auth import logout
 
+
+from django.http import JsonResponse
+import json
+
 import pyrebase
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -114,7 +118,7 @@ def products(request):
     return render(request,'product.html')
 
 
-def generate_roadmap_html(roadmap_text):
+def generate_roadmap_html_pathpro(roadmap_text):
     # Break the text into lines
     lines = roadmap_text.split('\n')
     
@@ -142,19 +146,19 @@ def generate_roadmap_html(roadmap_text):
         # Subheaders
         elif line.startswith("Phase") and line.endswith("**"):
             close_lists(1)
-            html += f"<h3 style='font-size: 1.75em; margin-bottom: 8px;'>{line.strip('**').strip()}<input type='checkbox' style='float: right; margin-right: 10px;'></h3>"
+            html += f"<h3 style='font-size: 1.75em; margin-bottom: 8px;'>{line.strip('**').strip()}</h3>"
             last_level = 1
         # Sub-subheaders
         elif line.startswith("*") and line.endswith(":"):
             close_lists(2)
-            html += f"<h4 style='font-size: 1.5em; margin-bottom: 6px;'>{line.strip('*:').strip()}<input type='checkbox' style='float: right; margin-right: 10px;'></h4>"
+            html += f"<h4 style='font-size: 1.5em; margin-bottom: 6px;'>{line.strip('*:').strip()}</h4>"
             last_level = 2
         # List items
         elif line.startswith("*"):
             if not in_list:
                 html += "<ul>"
                 in_list = True
-            html += f"<li style='margin-bottom: 4px;'>{line.strip('*').strip()}<input type='checkbox' style='float: right; margin-right: 10px;'></li>"
+            html += f"<li style='margin-bottom: 4px;'>{line.strip('*').strip()}</li>"
         else:
             close_lists(0)
             html += f"<p>{line.strip()}</p>"
@@ -164,7 +168,11 @@ def generate_roadmap_html(roadmap_text):
     # Wrap the HTML in a div
     html = f"<div class='roadmap'>{html}</div>"
     
+    # Remove any checkboxes that might be inadvertently added
+    
+    
     return html
+
 
 def path_pro(request):
     roadmap_html = None
@@ -172,22 +180,33 @@ def path_pro(request):
         course = request.POST.get('goal')
         if course:  # Check if the course input is not empty
             roadmap = generate_course_roadmap(course)
-            roadmap_html = generate_roadmap_html(roadmap)
-            
-            # Save roadmap to Firebase
-            user_id = request.session.get('uid')
-            if user_id:
-                data = {
-                    "user_id": user_id,
-                    "roadmap": roadmap,
-                    "is_completed": False
-                }
-                database.child("roadmaps").push(data)
-            else:
-                messages.error(request, "User not authenticated. Please log in.")
-                return redirect('login')
+            roadmap_html = generate_roadmap_html_pathpro(roadmap)
+            request.session['roadmap_html'] = roadmap_html  # Store roadmap_html in session
+            request.session['roadmap_data'] = roadmap
+        else:
+            messages.error(request, "Please enter a valid goal.")
 
     return render(request, 'path_pro.html', {'roadmap_html': roadmap_html})
+
+
+def save_roadmap(request):
+    if request.method == 'POST':
+        user_id = request.session.get('uid')
+        if user_id:
+            data = json.loads(request.body)
+            roadmap_html = data.get('roadmap_html')
+            if roadmap_html:
+                new_roadmap = {
+                    "user_id": user_id,
+                    "roadmap": roadmap_html,
+                    "is_completed": False
+                }
+                database.child("roadmaps").push(new_roadmap)
+                return JsonResponse({"success": True})
+            return JsonResponse({"success": False, "error": "No roadmap content"})
+        return JsonResponse({"success": False, "error": "User not authenticated"})
+    return JsonResponse({"success": False, "error": "Invalid request"})
+
 
 def time_track(request):
     return render(request,'time_track.html')
@@ -266,12 +285,69 @@ def habits_pro(request):
         return render(request, 'habits.html')
     
 
+
+def generate_roadmap_html(roadmap_text):
+    # Break the text into lines
+    lines = roadmap_text.split('\n')
+    
+    # Initialize an empty HTML string and a flag for list items
+    html = ""
+    in_list = False
+    last_level = 0
+
+    # Function to close the list tags based on the current and last level
+    def close_lists(current_level):
+        nonlocal html, in_list, last_level
+        while last_level >= current_level:
+            html += "</ul>"
+            last_level -= 1
+        in_list = False
+    
+    # Loop through each line and convert to HTML
+    for line in lines:
+        # Remove unwanted prefixes
+        line = line.lstrip('-#* ').strip()
+        # Phase headers
+        if line.startswith("**") and line.endswith("**"):
+            close_lists(0)
+            html += f"<h2 style='font-size: 2em; margin-bottom: 10px;'>{line.strip('**').strip()}</h2>"
+        # Main topics (subheaders)
+        elif line.startswith("Phase") and line.endswith("**"):
+            close_lists(1)
+            html += f"<h3 style='font-size: 1.75em; margin-bottom: 8px;'>{line.strip('**').strip()}<input type='checkbox' style='float: right; margin-right: 10px; width: 20px; height: 20px;'></h3>"
+            last_level = 1
+        # Sub-subheaders
+        elif line.startswith("*") and line.endswith(":"):
+            close_lists(2)
+            html += f"<h4 style='font-size: 1.5em; margin-bottom: 6px;'>{line.strip('*:').strip()}</h4>"
+            last_level = 2
+        # List items
+        elif line.startswith("*"):
+            if not in_list:
+                html += "<ul>"
+                in_list = True
+            html += f"<li style='margin-bottom: 4px;'>{line.strip('*').strip()}</li>"
+        else:
+            close_lists(0)
+            html += f"<p>{line.strip()}</p>"
+    
+    close_lists(0)
+    
+    # Wrap the HTML in a div
+    html = f"<div class='roadmap'>{html}</div>"
+    
+    return html
+
+    
+
 def my_roadmaps(request):
     user_id = request.session.get('uid')
     if user_id:
         roadmaps = database.child("roadmaps").order_by_child("user_id").equal_to(user_id).get().val()
         if roadmaps:
             roadmaps_list = [(key, value) for key, value in roadmaps.items()]
+            for key, roadmap in roadmaps_list:
+                roadmap['roadmap_html'] = generate_roadmap_html(roadmap['roadmap'])
         else:
             roadmaps_list = []
 
@@ -281,4 +357,3 @@ def my_roadmaps(request):
     else:
         messages.error(request, "User not authenticated. Please log in.")
         return redirect('login')
-
