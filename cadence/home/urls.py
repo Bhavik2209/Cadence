@@ -10,6 +10,7 @@ urlpatterns = [
     path('products/pathpro/',views.path_pro, name='path_pro'),
     path('products/time-track/',views.time_track, name='time_track'),
     path('products/pathpro/quiz/',views.quiz_view, name='quiz_view'),
+    path('products/habitpro/',views.habits_pro, name='habits_pro'),
 
     
 ]
