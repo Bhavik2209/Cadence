@@ -33,6 +33,7 @@
           {% if roadmap_html %}
             <h3 class="product-title">Generated Roadmap</h3>
             <div class="roadmap">{{ roadmap_html|safe }}</div>
+            <button class="cta-button" style="margin-top: 10px;" onclick="saveRoadmap()">Let's Go</button>
           {% else %}
             <p>No roadmap generated yet.</p>
           {% endif %}
@@ -43,5 +44,35 @@
     <footer class="footer">
       <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
     </footer>
+
+
+    <script>
+      function saveRoadmap() {
+        fetch("{% url 'save_roadmap' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          body: JSON.stringify({
+            roadmap_html: document.querySelector('.roadmap').innerHTML
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert("Roadmap saved successfully!");
+          } else {
+            alert("Failed to save roadmap.");
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("An error occurred. Please try again.");
+        });
+      }
+    </script>
+
+
   </body>
 </html>
