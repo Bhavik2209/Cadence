@@ -49,28 +49,35 @@
     <script>
       function saveRoadmap() {
         fetch("{% url 'save_roadmap' %}", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}"
-          },
-          body: JSON.stringify({
-            roadmap_html: document.querySelector('.roadmap').innerHTML
-          })
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                roadmap_html: document.querySelector('.roadmap').innerHTML
+            })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to save roadmap.');
+            }
+            return response.json();
+        })
         .then(data => {
-          if (data.success) {
-            alert("Roadmap saved successfully!");
-          } else {
-            alert("Failed to save roadmap.");
-          }
+            if (data.success) {
+                alert("Roadmap saved successfully!");
+                window.location.href = '/commit/my-roadmaps/';  // Redirect to my_roadmaps.html
+            } else {
+                alert("Failed to save roadmap: " + data.error);
+            }
         })
         .catch(error => {
-          console.error("Error:", error);
-          alert("An error occurred. Please try again.");
+            console.error("Error:", error);
+            alert("An error occurred. Please try again.");
         });
-      }
+    }
+    
     </script>
 
 
