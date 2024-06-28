@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -15,10 +16,10 @@
 
     <section id="quiz" class="quiz-overview">
       <h2>Quiz</h2>
-      <form id="quizForm">
+      <form id="quizForm" action="{% url 'quiz_view' %}">
         {{ quiz_html|safe }}
         <input type="hidden" name="answer_key" value="{{ answer_key }}">
-        <button type="submit" class="cta-button" >Submit Quiz</button>
+        <button type="submit" class="cta-button">Submit Quiz</button>
       </form>
     </section>
 
@@ -31,41 +32,39 @@
           event.preventDefault();
           const form = event.target;
           const formData = new FormData(form);
-          const userAnswers =[];
+          const userAnswers = [];
 
           // Initialize userAnswers with empty strings for each question
           const totalQuestions = form.querySelectorAll('.question-card').length;
-          console.log(totalQuestions)
-          for (let i = 0; i < totalQuestions; i++) {
+          for (let i = 0; i < 10; i++) {
               userAnswers.push('');
           }
 
           // Update userAnswers with selected values from the form data
           for (let [name, value] of formData.entries()) {
             if (name !== "answer_key") {
-              console.log(name);
-              console.log(name.slice(1))
               const questionIndex = parseInt(name.slice(1)) - 1;
               userAnswers[questionIndex] = value;
-              
             }
           }
 
-          console.log(userAnswers);
-
-          // Example for scoring (uncomment and modify as needed)
-          //const answerKey = ['c', 'a', 'b', 'a', 'a', 'a', 'd', 'b', 'a', 'c'];
-          const answerKey = formData.get('answer_key');
+          // Parse answerKey from JSON string to array
+          const answerKey = JSON.parse(formData.get('answer_key'));
           let score = 0;
-          
+
+          // Calculate the score
           answerKey.forEach((correctAnswer, index) => {
               if (userAnswers[index] === correctAnswer) {
                   score += 1;
               }
           });
-          
-          alert(`Quiz submitted! Your score is: ${score}/10`);
+          // Display the score
+          if (score >= 7) {
+            alert(`Congratulations! You have completed the module. Your score is: ${score}/10`);
+          } else {
+            alert(`Try again, you haven't passed. Your score is: ${score}/10`);
+          }
       });
-  </script>
+    </script>
   </body>
 </html>
