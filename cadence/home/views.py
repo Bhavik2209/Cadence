@@ -395,3 +395,38 @@ def my_roadmaps(request):
 
 def priority(request):
     return render(request,'priority.html')
+
+def submit_priorities(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        priorities = request.POST.getlist('priorities[]')
+        completed = request.POST.getlist('completed[]')
+
+        for i, priority in enumerate(priorities):
+            data = {
+                'user_id': user_id,
+                'priority_name': priority,
+                'completed': completed[i] == 'true',
+                'date': datetime.datetime.now().isoformat()
+            }
+            db.child("user_priorities").push(data)
+
+        return JsonResponse({'status': 'success'})
+
+
+# views.py
+def get_priorities_data(request):
+    user_id = request.user.id  # Assuming you can get the user ID from the request
+    user_priorities_ref = db.child("user_priorities").child(user_id)
+    user_priorities = user_priorities_ref.get().val()
+
+    priorities_data = []
+    if user_priorities:
+        priorities_data = list(user_priorities.values())
+
+    return JsonResponse({'data': priorities_data})
+# views.py
+from django.shortcuts import render
+
+def priorities_page(request):
+    return render(request, 'priorities.html')
