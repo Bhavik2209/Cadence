@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-{% extends "base.html" %}
-
-{% block body %}
-    <style>
-        .prioritybody {
-=======
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +6,6 @@
     <title>User Priorities</title>
     <style>
         body {
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
             background: linear-gradient(to right, #141E30, #243B55);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
@@ -67,10 +59,7 @@
             display: grid;
             place-content: center;
         }
-<<<<<<< HEAD
-=======
 
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
         .checkbox::before {
             content: "";
             width: 0.65em;
@@ -99,17 +88,12 @@
             margin-top: 50px;
             max-width: 100%;
         }
-<<<<<<< HEAD
-    </style>
-<div class='prioritybody'>
-=======
         .hidden{
             display: none;
         }
     </style>
 </head>
 <body>
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
     <div class="container">
         <h1>Welcome!</h1>
         <div id="date"></div>
@@ -123,11 +107,7 @@
                 <input type="checkbox" class="checkbox" id="priority2" name="priority2">
                 <label for="priority2">Priority 2</label>
             </div>
-<<<<<<< HEAD
-            <div class="priority-item">
-=======
             <div class="priority-item hidden" >
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
                 <input type="checkbox" class="checkbox" id="priority3" name="priority3">
                 <label for="priority3">Priority 3</label>
             </div>
@@ -137,26 +117,17 @@
 
         <canvas id="prioritiesChart" width="400" height="200"></canvas>
     </div>
-<<<<<<< HEAD
-</div>
-=======
 
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function submitPriorities() {
             const form = document.getElementById('prioritiesForm');
             const formData = new FormData(form);
-<<<<<<< HEAD
-            
-            const priorities = ['Priority 1', 'Priority 2', 'Priority 3'];
-=======
             const newdata = {};
                 
             const priorities = [];
             
             console.log( document.getElementById('priority1').name,)
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
             const completed = [
                 document.getElementById('priority1').checked,
                 document.getElementById('priority2').checked,
@@ -166,22 +137,6 @@
             formData.append('priorities[]', JSON.stringify(priorities));
             formData.append('completed[]', JSON.stringify(completed));
 
-<<<<<<< HEAD
-            fetch('/submit_priorities/', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Priorities submitted successfully!');
-            
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-=======
             // fetch('/submit_priorities/', {
             //     method: 'POST',
             //     body: formData
@@ -196,7 +151,6 @@
             // .catch(error => {
             //     console.error('Error:', error);
             // });
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
         }
 
         function loadChart() {
@@ -205,11 +159,6 @@
                 .then(data => {
                     const ctx = document.getElementById('prioritiesChart').getContext('2d');
                     const prioritiesData = data.data;
-<<<<<<< HEAD
-
-                    // Process data for chart
-                    const labels = [...new Set(prioritiesData.map(d => d.priority_name))];
-=======
                     // Process data for chart
                     const labels = [...new Set(prioritiesData.map(d => d.priority_name))];
                                         
@@ -241,7 +190,6 @@
                         container.appendChild(priorityItem);
                     });
 
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
                     const completionData = labels.map(label => {
                         return prioritiesData.filter(d => d.priority_name === label && d.completed).length;
                     });
@@ -279,9 +227,5 @@
             loadChart();
         });
     </script>
-<<<<<<< HEAD
-    {% endblock  %}
-=======
 </body>
 </html>
->>>>>>> 7eb920e3c8bd204900a0c23acc088e8db5aef878
