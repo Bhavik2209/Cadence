@@ -53,36 +53,6 @@ def signup(request):
         form = UserRegForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            # Ensure you're using the correct field name
-            password = form.cleaned_data['password1']
-            
-            try:
-                # creating a user with the given email and password
-                user = authe.create_user_with_email_and_password(
-                    email, password)
-                uid = user['localId']
-                request.session['uid'] = uid
-                messages.success(request, 'Account created successfully.')
-                print("Account created successfully")
-                # Redirect to login page after successful signup
-                return redirect('user_login')
-
-            except Exception as e:
-                messages.error(request, f'Error creating account: {str(e)}')
-                return render(request, "signup.html", {'form': form})
-        else:
-            messages.error(request, 'Invalid form data')
-    else:
-        form = UserRegForm()
-
-    return render(request, 'signup.html', {'form': form})
-
-
-def signup(request):
-    if request.method == 'POST':
-        form = UserRegForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
             password = form.cleaned_data['password1']  # Ensure you're using the correct field name
             try:
                 # creating a user with the given email and password
@@ -388,7 +358,7 @@ def submit_priorities(request):
                 'completed': completed[i] == 'true',
                 'date': datetime.datetime.now().isoformat()
             }
-            db.child("user_priorities").push(data)
+            database.child("user_priorities").push(data)
 
         return JsonResponse({'status': 'success'})
 
@@ -396,7 +366,7 @@ def submit_priorities(request):
 # views.py
 def get_priorities_data(request):
     user_id = request.user.id  # Assuming you can get the user ID from the request
-    user_priorities_ref = db.child("user_priorities").child(user_id)
+    user_priorities_ref = database.child("user_priorities").child(user_id)
     user_priorities = user_priorities_ref.get().val()
 
     priorities_data = []
