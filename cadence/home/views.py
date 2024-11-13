@@ -1,12 +1,9 @@
-from django.shortcuts import render,redirect
-from .forms import UserRegForm,UserLoginForm
+from django.shortcuts import render, redirect
+from .forms import UserRegForm, UserLoginForm
 from django.contrib.auth import logout
-
 from datetime import datetime
-
 from django.http import JsonResponse
 import json
-
 import pyrebase
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -16,16 +13,18 @@ from .roadmap.app import generate_course_roadmap
 from .habits.app import generate_daily_timetable
 import re
 import json
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 config = {
-  "apiKey": "",
-  "authDomain": "test-6ef0b.firebaseapp.com",
-  "databaseURL": "https://test-6ef0b-default-rtdb.asia-southeast1.firebasedatabase.app",
-  "projectId": "test-6ef0b",
-  "storageBucket": "test-6ef0b.appspot.com",
-  "messagingSenderId": "595401935708",
-  "appId": "1:595401935708:web:a0ee6c32a345713f930f99",
-  "measurementId": "G-ZLCG76PVW3"
+    "databaseURL": os.getenv("databaseURL"),
+    "apiKey": os.getenv("apiKey"),
+    "authDomain": os.getenv("authDomain"),
+    "projectId": os.getenv("projectId"),
+    "storageBucket": os.getenv("storageBucket"),
+    "messagingSenderId": os.getenv("messagingSenderId"),
+    "appId":  os.getenv("appId"),
+    "measurementId": os.getenv("databaseURL")
 }
 
 firebase = pyrebase.initialize_app(config)
@@ -33,8 +32,11 @@ authe = firebase.auth()
 database = firebase.database()
 
 # Create your views here.
+
+
 def index(request):
-    return render(request,"index.html")
+    return render(request, "index.html")
+
 
 def contact(request):
     return render(request,"contact.html")
@@ -45,10 +47,11 @@ def quiz_view(request):
         course_name = request.POST.get('course_name')
         print(course_name)
         # Your logic to handle the course name and generate the quiz
-        quiz_html, answer_key = generate_course_quiz(course_name)
-        print("answer key:", answer_key)
-        return render(request, 'quiz.html', {'quiz_html': quiz_html, 'answer_key': json.dumps(answer_key)})
+        questions_anwers, answer_key = generate_course_quiz(course_name)
+        # print("answer key:", answer_key)
+        return render(request, 'quiz.html', {'questions': questions_anwers, 'answer_key': json.dumps(answer_key)})
     print("not getting post request")
+
 
 def signup(request):
     if request.method == 'POST':
@@ -125,63 +128,7 @@ def logout_user(request):
     return redirect('index')
 
 def products(request):
-    return render(request,'product.html')
-
-
-def generate_roadmap_html(roadmap_text):
-    # Break the text into lines
-    lines = roadmap_text.split('\n')
-    
-    # Initialize an empty HTML string and a flag for list items
-    html = ""
-    in_list = False
-    last_level = 0
-
-    # Function to close the list tags based on the current and last level
-    def close_lists(current_level):
-        nonlocal html, in_list, last_level
-        while last_level >= current_level:
-            html += "</ul>"
-            last_level -= 1
-        in_list = False
-    
-    # Loop through each line and convert to HTML
-    for line in lines:
-        # Remove unwanted prefixes
-        line = line.lstrip('-#* ').strip()
-        # Phase headers
-        if line.startswith("**") and line.endswith("**"):
-            close_lists(0)
-            html += f"<h2 style='font-size: 2em; margin-bottom: 10px;'>{line.strip('**').strip()}</h2>"
-        # Subheaders
-        elif line.startswith("Phase") and line.endswith("**"):
-            close_lists(1)
-            html += f"<h3 style='font-size: 1.75em; margin-bottom: 8px;'>{line.strip('**').strip()}</h3>"
-            last_level = 1
-        # Sub-subheaders
-        elif line.startswith("*") and line.endswith(":"):
-            close_lists(2)
-            html += f"<h4 style='font-size: 1.5em; margin-bottom: 6px;'>{line.strip('*:').strip()}</h4>"
-            last_level = 2
-        # List items
-        elif line.startswith("*"):
-            if not in_list:
-                html += "<ul>"
-                in_list = True
-            html += f"<li style='margin-bottom: 4px;'>{line.strip('*').strip()}</li>"
-        else:
-            close_lists(0)
-            html += f"<p>{line.strip()}</p>"
-    
-    close_lists(0)
-    
-    # Wrap the HTML in a div
-    html = f"<div class='roadmap'>{html}</div>"
-    
-    # Remove any checkboxes that might be inadvertently added
-    
-    
-    return html
+    return render(request, 'product.html')
 
 
 def path_pro(request):
@@ -192,7 +139,8 @@ def path_pro(request):
             request.session['course'] = course
             roadmap = generate_course_roadmap(course)
             roadmap_html = generate_roadmap_html(roadmap)
-            request.session['roadmap_html'] = roadmap_html  # Store roadmap_html in session
+            # Store roadmap_html in session
+            request.session['roadmap_html'] = roadmap_html
             request.session['roadmap_data'] = roadmap
         else:
             messages.error(request, "Please enter a valid goal.")
@@ -202,8 +150,8 @@ def path_pro(request):
 
 def save_roadmap(request):
     if request.method == 'POST':
-        user_email = request.session.get('email')# Use email
-        course = request.session.get('course')  
+        user_email = request.session.get('email')  # Use email
+        course = request.session.get('course')
         if user_email:
             data = json.loads(request.body)
             roadmap_html = data.get('roadmap_html')
@@ -211,7 +159,7 @@ def save_roadmap(request):
             if roadmap_html:
                 new_roadmap = {
                     "user_email": user_email,
-                    "course" : course,
+                    "course": course,
                     "roadmap": roadmap_html,
                     "is_completed": False
                 }
@@ -223,11 +171,13 @@ def save_roadmap(request):
 
 
 def time_track(request):
-    return render(request,'time_track.html')
+    return render(request, 'time_track.html')
 
     #     form = UserLoginForm()  # Create a new form instance for GET requests
 
     # return render(request, 'login.html', {'form': form})
+
+
 def convert_to_html(input_text):
     # Split the input text into sections
     sections = input_text.split('\n\n')
@@ -275,6 +225,7 @@ def convert_to_html(input_text):
 
     return html_output
 
+
 def habits_pro(request):
     answers = ''
     time_table = ''
@@ -294,7 +245,7 @@ def habits_pro(request):
 
         # User email (assuming it's stored in session)
         user_email = request.session.get('email', 'default_email@example.com')
-        
+
         # Save each priority in three_prio separately to Firebase
         for priority in three_prio:
             data = {
@@ -303,7 +254,7 @@ def habits_pro(request):
                 'is_completed': False,  # Assuming this is a new entry and not yet completed
                 'timestamp': datetime.utcnow().isoformat()
             }
-            
+
             # Push data to Firebase
             database.child('habits').push(data)
 
@@ -316,13 +267,12 @@ def habits_pro(request):
         return render(request, 'habits.html', {'time_table': time_table})
     else:
         return render(request, 'habits.html')
-    
 
 
 def generate_roadmap_html(roadmap_text):
     # Break the text into lines
     lines = roadmap_text.split('\n')
-    
+
     # Initialize an empty HTML string and a flag for list items
     html = ""
     in_list = False
@@ -335,7 +285,7 @@ def generate_roadmap_html(roadmap_text):
             html += "</ul>"
             last_level -= 1
         in_list = False
-    
+
     # Loop through each line and convert to HTML
     for line in lines:
         # Remove unwanted prefixes
@@ -363,26 +313,27 @@ def generate_roadmap_html(roadmap_text):
         else:
             close_lists(0)
             html += f"<p>{line.strip()}</p>"
-    
+
     close_lists(0)
-    
+
     # Wrap the HTML in a div
     html = f"<div class='roadmap'>{html}</div>"
-    
+
     return html
 
-    
 
 def my_roadmaps(request):
     user_email = request.session.get('email')  # Use email
     print(f"Fetching roadmaps for user_email: {user_email}")  # Debugging line
     if user_email:
-        roadmaps = database.child("roadmaps").order_by_child("user_email").equal_to(user_email).get().val()
+        roadmaps = database.child("roadmaps").order_by_child(
+            "user_email").equal_to(user_email).get().val()
         print(f"Fetched roadmaps: {roadmaps}")  # Debugging line
         if roadmaps:
             roadmaps_list = [(key, value) for key, value in roadmaps.items()]
             for key, roadmap in roadmaps_list:
-                roadmap['roadmap_html'] = generate_roadmap_html(roadmap['roadmap'])
+                roadmap['roadmap_html'] = generate_roadmap_html(
+                    roadmap['roadmap'])
         else:
             roadmaps_list = []
 
@@ -392,12 +343,11 @@ def my_roadmaps(request):
     else:
         messages.error(request, "User not authenticated. Please log in.")
         return redirect('user_login')
-    
 
-    
 
 def priority(request):
-    return render(request,'priority.html')
+    return render(request, 'priority.html')
+
 
 def submit_priorities(request):
     if request.method == 'POST':
@@ -412,7 +362,7 @@ def submit_priorities(request):
                 'completed': completed[i] == 'true',
                 'date': datetime.datetime.now().isoformat()
             }
-            db.child("user_priorities").push(data)
+            database.child("user_priorities").push(data)
 
         return JsonResponse({'status': 'success'})
 
@@ -420,7 +370,7 @@ def submit_priorities(request):
 # views.py
 def get_priorities_data(request):
     user_id = request.user.id  # Assuming you can get the user ID from the request
-    user_priorities_ref = db.child("user_priorities").child(user_id)
+    user_priorities_ref = database.child("user_priorities").child(user_id)
     user_priorities = user_priorities_ref.get().val()
 
     priorities_data = []
@@ -428,8 +378,9 @@ def get_priorities_data(request):
         priorities_data = list(user_priorities.values())
 
     return JsonResponse({'data': priorities_data})
+
 # views.py
-from django.shortcuts import render
+
 
 def priorities_page(request):
     return render(request, 'priorities.html')
