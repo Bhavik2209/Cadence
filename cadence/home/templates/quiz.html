@@ -17,8 +17,25 @@
     <section id="quiz" class="quiz-overview">
       <h2>Quiz</h2>
       <form id="quizForm" action="{% url 'quiz_view' %}">
-        {{ quiz_html|safe }}
-        <input type="hidden" name="answer_key" value="{{ answer_key }}">
+        {% comment %} dynamically add all the questions using a for loop {% endcomment %}
+        
+        {% for question in questions %}
+          <div class="question-card">
+            <h3 class="question-title">{{ question.question_name }}</h3>
+            <div class="options">
+              {% for option in question.options %}
+                <label>
+                  <input type="radio" name="q{{ forloop.parentloop.counter }}" value="{{ forloop.counter }}">
+                  <span class="option-button" data-option-index="{{ forloop.counter }}">{{ option }}</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+
+        <!-- Hidden input for answer key, passed as JSON -->
+        <input type="hidden" name="answer_key" value="{{ answer_key|safe }}">
+        
         <button type="submit" class="cta-button">Submit Quiz</button>
       </form>
     </section>
@@ -36,24 +53,26 @@
 
           // Initialize userAnswers with empty strings for each question
           const totalQuestions = form.querySelectorAll('.question-card').length;
-          for (let i = 0; i < 10; i++) {
+          for (let i = 0; i < totalQuestions; i++) {
               userAnswers.push('');
           }
 
-          // Update userAnswers with selected values from the form data
+          // Update userAnswers with selected option numbers
           for (let [name, value] of formData.entries()) {
             if (name !== "answer_key") {
               const questionIndex = parseInt(name.slice(1)) - 1;
-              userAnswers[questionIndex] = value;
+              userAnswers[questionIndex] = parseInt(value);
             }
           }
-
+          
           // Parse answerKey from JSON string to array
           const answerKey = JSON.parse(formData.get('answer_key'));
           let score = 0;
 
-          // Calculate the score
+          // Calculate the score based on option numbers
           answerKey.forEach((correctAnswer, index) => {
+            console.log(typeof(correctAnswer));
+            console.log(typeof(userAnswers[index]));
               if (userAnswers[index] === correctAnswer) {
                   score += 1;
               }

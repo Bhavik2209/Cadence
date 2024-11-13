@@ -1,12 +1,9 @@
-from django.shortcuts import render,redirect
-from .forms import UserRegForm,UserLoginForm
+from django.shortcuts import render, redirect
+from .forms import UserRegForm, UserLoginForm
 from django.contrib.auth import logout
-
 from datetime import datetime
-
 from django.http import JsonResponse
 import json
-
 import pyrebase
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
@@ -18,14 +15,14 @@ import re
 import json
 
 config = {
-  "apiKey": "",
-  "authDomain": "test-6ef0b.firebaseapp.com",
-  "databaseURL": "https://test-6ef0b-default-rtdb.asia-southeast1.firebasedatabase.app",
-  "projectId": "test-6ef0b",
-  "storageBucket": "test-6ef0b.appspot.com",
-  "messagingSenderId": "595401935708",
-  "appId": "1:595401935708:web:a0ee6c32a345713f930f99",
-  "measurementId": "G-ZLCG76PVW3"
+    "databaseURL": "https://commit-404af-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    "apiKey": "AIzaSyAmbfC2iK8VkUteHcUch75Lu5jy4q76eMw",
+    "authDomain": "commit-404af.firebaseapp.com",
+    "projectId": "commit-404af",
+    "storageBucket": "commit-404af.firebasestorage.app",
+    "messagingSenderId": "211452969754",
+    "appId": "1:211452969754:web:8e687c9db92b7aade462a3",
+    "measurementId": "G-R7RS4J0MHD"
 }
 
 firebase = pyrebase.initialize_app(config)
@@ -33,8 +30,11 @@ authe = firebase.auth()
 database = firebase.database()
 
 # Create your views here.
+
+
 def index(request):
-    return render(request,"index.html")
+    return render(request, "index.html")
+
 
 def quiz_view(request):
     if request.method == "POST":
@@ -42,10 +42,41 @@ def quiz_view(request):
         course_name = request.POST.get('course_name')
         print(course_name)
         # Your logic to handle the course name and generate the quiz
-        quiz_html, answer_key = generate_course_quiz(course_name)
-        print("answer key:", answer_key)
-        return render(request, 'quiz.html', {'quiz_html': quiz_html, 'answer_key': json.dumps(answer_key)})
+        questions_anwers, answer_key = generate_course_quiz(course_name)
+        # print("answer key:", answer_key)
+        return render(request, 'quiz.html', {'questions': questions_anwers, 'answer_key': json.dumps(answer_key)})
     print("not getting post request")
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserRegForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            # Ensure you're using the correct field name
+            password = form.cleaned_data['password1']
+            
+            try:
+                # creating a user with the given email and password
+                user = authe.create_user_with_email_and_password(
+                    email, password)
+                uid = user['localId']
+                request.session['uid'] = uid
+                messages.success(request, 'Account created successfully.')
+                print("Account created successfully")
+                # Redirect to login page after successful signup
+                return redirect('user_login')
+
+            except Exception as e:
+                messages.error(request, f'Error creating account: {str(e)}')
+                return render(request, "signup.html", {'form': form})
+        else:
+            messages.error(request, 'Invalid form data')
+    else:
+        form = UserRegForm()
+
+    return render(request, 'signup.html', {'form': form})
+
 
 def signup(request):
     if request.method == 'POST':
@@ -59,8 +90,8 @@ def signup(request):
                 uid = user['localId']
                 request.session['uid'] = uid
                 messages.success(request, 'Account created successfully.')
-
-                return redirect('login') # Redirect to login page after successful signup
+                print("created")
+                return redirect('user_login') # Redirect to login page after successful signup
 
             except Exception as e:
                 messages.error(request, f'Error creating account: {str(e)}')
@@ -121,64 +152,9 @@ def logout_user(request):
     request.session.pop('user', None)
     return redirect('index')
 
+
 def products(request):
-    return render(request,'product.html')
-
-
-def generate_roadmap_html(roadmap_text):
-    # Break the text into lines
-    lines = roadmap_text.split('\n')
-    
-    # Initialize an empty HTML string and a flag for list items
-    html = ""
-    in_list = False
-    last_level = 0
-
-    # Function to close the list tags based on the current and last level
-    def close_lists(current_level):
-        nonlocal html, in_list, last_level
-        while last_level >= current_level:
-            html += "</ul>"
-            last_level -= 1
-        in_list = False
-    
-    # Loop through each line and convert to HTML
-    for line in lines:
-        # Remove unwanted prefixes
-        line = line.lstrip('-#* ').strip()
-        # Phase headers
-        if line.startswith("**") and line.endswith("**"):
-            close_lists(0)
-            html += f"<h2 style='font-size: 2em; margin-bottom: 10px;'>{line.strip('**').strip()}</h2>"
-        # Subheaders
-        elif line.startswith("Phase") and line.endswith("**"):
-            close_lists(1)
-            html += f"<h3 style='font-size: 1.75em; margin-bottom: 8px;'>{line.strip('**').strip()}</h3>"
-            last_level = 1
-        # Sub-subheaders
-        elif line.startswith("*") and line.endswith(":"):
-            close_lists(2)
-            html += f"<h4 style='font-size: 1.5em; margin-bottom: 6px;'>{line.strip('*:').strip()}</h4>"
-            last_level = 2
-        # List items
-        elif line.startswith("*"):
-            if not in_list:
-                html += "<ul>"
-                in_list = True
-            html += f"<li style='margin-bottom: 4px;'>{line.strip('*').strip()}</li>"
-        else:
-            close_lists(0)
-            html += f"<p>{line.strip()}</p>"
-    
-    close_lists(0)
-    
-    # Wrap the HTML in a div
-    html = f"<div class='roadmap'>{html}</div>"
-    
-    # Remove any checkboxes that might be inadvertently added
-    
-    
-    return html
+    return render(request, 'product.html')
 
 
 def path_pro(request):
@@ -189,7 +165,8 @@ def path_pro(request):
             request.session['course'] = course
             roadmap = generate_course_roadmap(course)
             roadmap_html = generate_roadmap_html(roadmap)
-            request.session['roadmap_html'] = roadmap_html  # Store roadmap_html in session
+            # Store roadmap_html in session
+            request.session['roadmap_html'] = roadmap_html
             request.session['roadmap_data'] = roadmap
         else:
             messages.error(request, "Please enter a valid goal.")
@@ -199,8 +176,8 @@ def path_pro(request):
 
 def save_roadmap(request):
     if request.method == 'POST':
-        user_email = request.session.get('email')# Use email
-        course = request.session.get('course')  
+        user_email = request.session.get('email')  # Use email
+        course = request.session.get('course')
         if user_email:
             data = json.loads(request.body)
             roadmap_html = data.get('roadmap_html')
@@ -208,7 +185,7 @@ def save_roadmap(request):
             if roadmap_html:
                 new_roadmap = {
                     "user_email": user_email,
-                    "course" : course,
+                    "course": course,
                     "roadmap": roadmap_html,
                     "is_completed": False
                 }
@@ -220,11 +197,13 @@ def save_roadmap(request):
 
 
 def time_track(request):
-    return render(request,'time_track.html')
+    return render(request, 'time_track.html')
 
     #     form = UserLoginForm()  # Create a new form instance for GET requests
 
     # return render(request, 'login.html', {'form': form})
+
+
 def convert_to_html(input_text):
     # Split the input text into sections
     sections = input_text.split('\n\n')
@@ -272,6 +251,7 @@ def convert_to_html(input_text):
 
     return html_output
 
+
 def habits_pro(request):
     answers = ''
     time_table = ''
@@ -291,7 +271,7 @@ def habits_pro(request):
 
         # User email (assuming it's stored in session)
         user_email = request.session.get('email', 'default_email@example.com')
-        
+
         # Save each priority in three_prio separately to Firebase
         for priority in three_prio:
             data = {
@@ -300,7 +280,7 @@ def habits_pro(request):
                 'is_completed': False,  # Assuming this is a new entry and not yet completed
                 'timestamp': datetime.utcnow().isoformat()
             }
-            
+
             # Push data to Firebase
             database.child('habits').push(data)
 
@@ -313,13 +293,12 @@ def habits_pro(request):
         return render(request, 'habits.html', {'time_table': time_table})
     else:
         return render(request, 'habits.html')
-    
 
 
 def generate_roadmap_html(roadmap_text):
     # Break the text into lines
     lines = roadmap_text.split('\n')
-    
+
     # Initialize an empty HTML string and a flag for list items
     html = ""
     in_list = False
@@ -332,7 +311,7 @@ def generate_roadmap_html(roadmap_text):
             html += "</ul>"
             last_level -= 1
         in_list = False
-    
+
     # Loop through each line and convert to HTML
     for line in lines:
         # Remove unwanted prefixes
@@ -360,26 +339,27 @@ def generate_roadmap_html(roadmap_text):
         else:
             close_lists(0)
             html += f"<p>{line.strip()}</p>"
-    
+
     close_lists(0)
-    
+
     # Wrap the HTML in a div
     html = f"<div class='roadmap'>{html}</div>"
-    
+
     return html
 
-    
 
 def my_roadmaps(request):
     user_email = request.session.get('email')  # Use email
     print(f"Fetching roadmaps for user_email: {user_email}")  # Debugging line
     if user_email:
-        roadmaps = database.child("roadmaps").order_by_child("user_email").equal_to(user_email).get().val()
+        roadmaps = database.child("roadmaps").order_by_child(
+            "user_email").equal_to(user_email).get().val()
         print(f"Fetched roadmaps: {roadmaps}")  # Debugging line
         if roadmaps:
             roadmaps_list = [(key, value) for key, value in roadmaps.items()]
             for key, roadmap in roadmaps_list:
-                roadmap['roadmap_html'] = generate_roadmap_html(roadmap['roadmap'])
+                roadmap['roadmap_html'] = generate_roadmap_html(
+                    roadmap['roadmap'])
         else:
             roadmaps_list = []
 
@@ -389,12 +369,11 @@ def my_roadmaps(request):
     else:
         messages.error(request, "User not authenticated. Please log in.")
         return redirect('user_login')
-    
 
-    
 
 def priority(request):
-    return render(request,'priority.html')
+    return render(request, 'priority.html')
+
 
 def submit_priorities(request):
     if request.method == 'POST':
@@ -425,8 +404,9 @@ def get_priorities_data(request):
         priorities_data = list(user_priorities.values())
 
     return JsonResponse({'data': priorities_data})
+
 # views.py
-from django.shortcuts import render
+
 
 def priorities_page(request):
     return render(request, 'priorities.html')
