@@ -36,6 +36,9 @@ database = firebase.database()
 def index(request):
     return render(request,"index.html")
 
+def contact(request):
+    return render(request,"contact.html")
+
 def quiz_view(request):
     if request.method == "POST":
         print("quiz requested")
@@ -59,8 +62,8 @@ def signup(request):
                 uid = user['localId']
                 request.session['uid'] = uid
                 messages.success(request, 'Account created successfully.')
-
-                return redirect('login') # Redirect to login page after successful signup
+                print("created")
+                return redirect('user_login') # Redirect to login page after successful signup
 
             except Exception as e:
                 messages.error(request, f'Error creating account: {str(e)}')
