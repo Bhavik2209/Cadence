@@ -13,16 +13,18 @@ from .roadmap.app import generate_course_roadmap
 from .habits.app import generate_daily_timetable
 import re
 import json
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 config = {
-    "databaseURL": "https://commit-404af-default-rtdb.asia-southeast1.firebasedatabase.app/",
-    "apiKey": "AIzaSyAmbfC2iK8VkUteHcUch75Lu5jy4q76eMw",
-    "authDomain": "commit-404af.firebaseapp.com",
-    "projectId": "commit-404af",
-    "storageBucket": "commit-404af.firebasestorage.app",
-    "messagingSenderId": "211452969754",
-    "appId": "1:211452969754:web:8e687c9db92b7aade462a3",
-    "measurementId": "G-R7RS4J0MHD"
+    "databaseURL": os.getenv("databaseURL"),
+    "apiKey": os.getenv("apiKey"),
+    "authDomain": os.getenv("authDomain"),
+    "projectId": os.getenv("projectId"),
+    "storageBucket": os.getenv("storageBucket"),
+    "messagingSenderId": os.getenv("messagingSenderId"),
+    "appId":  os.getenv("appId"),
+    "measurementId": os.getenv("databaseURL")
 }
 
 firebase = pyrebase.initialize_app(config)
@@ -124,7 +126,6 @@ def logout_user(request):
     request.session.pop('uid', None)  # Remove any other session variables related to authentication
     request.session.pop('user', None)
     return redirect('index')
-
 
 def products(request):
     return render(request, 'product.html')

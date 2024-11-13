@@ -34,20 +34,20 @@ def generate_course_quiz(course):
         '''
     ] 
 
-    # response = model.generate_content(prompt)
-    # res = response.text
-    # questions_str = res.replace('```json', '').replace('```', '').strip()
+    response = model.generate_content(prompt)
+    res = response.text
+    questions_str = res.replace('```json', '').replace('```', '').strip()
     
-    # # Convert JSON string to list of questions 
-    # try:
-    #     questions_anwers = json.loads(questions_str)
-    # except json.JSONDecodeError: 
-    #     return json.JSONDecodeError
+    # Convert JSON string to list of questions 
+    try:
+        questions_anwers = json.loads(questions_str)
+    except json.JSONDecodeError: 
+        return json.JSONDecodeError
     
 
-    questions_anwers = [{'question_name': 'Which of the following is a data type in TypeScript?', 'options': ['number', 'string', 'boolean', 'all of the above'], 'correct_option_number': 4} ,
-                        {'question_name': 'Which of the following is a key difference between TypeScript and JavaScript?', 'options': ['TypeScript is a statically typed language, while JavaScript is a dynamically typed language.', 'TypeScript compiles to JavaScript, while JavaScript is interpreted.', 'TypeScript supports object-oriented programming, while JavaScript does not.', 'TypeScript is a newer language than JavaScript.'], 'correct_option_number': 1},
-                        {'question_name': 'Which of the following is a key difference between TypeScript and JavaScript?', 'options': ['TypeScript is a statically typed language, while JavaScript is a dynamically typed language.', 'TypeScript compiles to JavaScript, while JavaScript is interpreted.', 'TypeScript supports object-oriented programming, while JavaScript does not.', 'TypeScript is a newer language than JavaScript.'], 'correct_option_number': 1},]
+    # questions_anwers = [{'question_name': 'Which of the following is a data type in TypeScript?', 'options': ['number', 'string', 'boolean', 'all of the above'], 'correct_option_number': 4} ,
+    #                     {'question_name': 'Which of the following is a key difference between TypeScript and JavaScript?', 'options': ['TypeScript is a statically typed language, while JavaScript is a dynamically typed language.', 'TypeScript compiles to JavaScript, while JavaScript is interpreted.', 'TypeScript supports object-oriented programming, while JavaScript does not.', 'TypeScript is a newer language than JavaScript.'], 'correct_option_number': 1},
+    #                     {'question_name': 'Which of the following is a key difference between TypeScript and JavaScript?', 'options': ['TypeScript is a statically typed language, while JavaScript is a dynamically typed language.', 'TypeScript compiles to JavaScript, while JavaScript is interpreted.', 'TypeScript supports object-oriented programming, while JavaScript does not.', 'TypeScript is a newer language than JavaScript.'], 'correct_option_number': 1},]
 
 
     correct_answers = []
