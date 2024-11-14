@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Priorities</title>
+{% extends "base.html" %}
+
+{% block body %}
     <style>
-        body {
+        .prioritybody {
             background: linear-gradient(to right, #141E30, #243B55);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
@@ -59,7 +56,6 @@
             display: grid;
             place-content: center;
         }
-
         .checkbox::before {
             content: "";
             width: 0.65em;
@@ -88,12 +84,8 @@
             margin-top: 50px;
             max-width: 100%;
         }
-        .hidden{
-            display: none;
-        }
     </style>
-</head>
-<body>
+<div class='prioritybody'>
     <div class="container">
         <h1>Welcome!</h1>
         <div id="date"></div>
@@ -107,7 +99,7 @@
                 <input type="checkbox" class="checkbox" id="priority2" name="priority2">
                 <label for="priority2">Priority 2</label>
             </div>
-            <div class="priority-item hidden" >
+            <div class="priority-item">
                 <input type="checkbox" class="checkbox" id="priority3" name="priority3">
                 <label for="priority3">Priority 3</label>
             </div>
@@ -117,17 +109,14 @@
 
         <canvas id="prioritiesChart" width="400" height="200"></canvas>
     </div>
-
+</div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function submitPriorities() {
             const form = document.getElementById('prioritiesForm');
             const formData = new FormData(form);
-            const newdata = {};
-                
-            const priorities = [];
             
-            console.log( document.getElementById('priority1').name,)
+            const priorities = ['Priority 1', 'Priority 2', 'Priority 3'];
             const completed = [
                 document.getElementById('priority1').checked,
                 document.getElementById('priority2').checked,
@@ -137,20 +126,20 @@
             formData.append('priorities[]', JSON.stringify(priorities));
             formData.append('completed[]', JSON.stringify(completed));
 
-            // fetch('/submit_priorities/', {
-            //     method: 'POST',
-            //     body: formData
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     if (data.status === 'success') {
-            //         alert('Priorities submitted successfully!');
+            fetch('/submit_priorities/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Priorities submitted successfully!');
             
-            //     }
-            // })
-            // .catch(error => {
-            //     console.error('Error:', error);
-            // });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         }
 
         function loadChart() {
@@ -159,37 +148,9 @@
                 .then(data => {
                     const ctx = document.getElementById('prioritiesChart').getContext('2d');
                     const prioritiesData = data.data;
+
                     // Process data for chart
                     const labels = [...new Set(prioritiesData.map(d => d.priority_name))];
-                                        
-                    const container = document.getElementById('prioritiesForm');
-
-                    labels.forEach((labelText, index) => {
-                        // Create a new div for each priority item
-                        const priorityItem = document.createElement('div');
-                        priorityItem.classList.add('priority-item');
-
-                        // Create the checkbox input
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        
-                        checkbox.classList.add('checkbox');
-                        checkbox.id = `priority${index + 1}`;
-                        checkbox.name = labelText;
-
-                        // Create the label
-                        const label = document.createElement('label');
-                        label.htmlFor = `priority${index + 1}`;
-                        label.textContent = labelText;
-
-                        // Append checkbox and label to the priority item div
-                        priorityItem.appendChild(checkbox);
-                        priorityItem.appendChild(label);
-
-                        // Append the priority item div to the container
-                        container.appendChild(priorityItem);
-                    });
-
                     const completionData = labels.map(label => {
                         return prioritiesData.filter(d => d.priority_name === label && d.completed).length;
                     });
@@ -227,5 +188,4 @@
             loadChart();
         });
     </script>
-</body>
-</html>
+    {% endblock  %}
