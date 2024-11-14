@@ -18,14 +18,14 @@ import re
 import json
 
 config = {
-  "apiKey": "",
-  "authDomain": "test-6ef0b.firebaseapp.com",
-  "databaseURL": "https://test-6ef0b-default-rtdb.asia-southeast1.firebasedatabase.app",
-  "projectId": "test-6ef0b",
-  "storageBucket": "test-6ef0b.appspot.com",
-  "messagingSenderId": "595401935708",
-  "appId": "1:595401935708:web:a0ee6c32a345713f930f99",
-  "measurementId": "G-ZLCG76PVW3"
+    "databaseURL": os.getenv("databaseURL"),
+    "apiKey": os.getenv("apiKey"),
+    "authDomain": os.getenv("authDomain"),
+    "projectId": os.getenv("projectId"),
+    "storageBucket": os.getenv("storageBucket"),
+    "messagingSenderId": os.getenv("messagingSenderId"),
+    "appId":  os.getenv("appId"),
+    "measurementId": os.getenv("databaseURL")
 }
 
 firebase = pyrebase.initialize_app(config)
@@ -412,7 +412,7 @@ def submit_priorities(request):
                 'completed': completed[i] == 'true',
                 'date': datetime.datetime.now().isoformat()
             }
-            db.child("user_priorities").push(data)
+            database.child("user_priorities").push(data)
 
         return JsonResponse({'status': 'success'})
 
@@ -420,7 +420,7 @@ def submit_priorities(request):
 # views.py
 def get_priorities_data(request):
     user_id = request.user.id  # Assuming you can get the user ID from the request
-    user_priorities_ref = db.child("user_priorities").child(user_id)
+    user_priorities_ref = database.child("user_priorities").child(user_id)
     user_priorities = user_priorities_ref.get().val()
 
     priorities_data = []
