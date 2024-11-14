@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
+
 from .forms import UserRegForm, UserLoginForm
 from django.contrib.auth import logout
 from datetime import datetime
@@ -15,6 +17,7 @@ import re
 import json
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
 config = {
     "databaseURL": os.getenv("databaseURL"),
@@ -24,7 +27,7 @@ config = {
     "storageBucket": os.getenv("storageBucket"),
     "messagingSenderId": os.getenv("messagingSenderId"),
     "appId":  os.getenv("appId"),
-    "measurementId": os.getenv("measurementId")
+    "measurementId": os.getenv("databaseURL")
 }
 
 firebase = pyrebase.initialize_app(config)
@@ -33,13 +36,14 @@ database = firebase.database()
 
 # Create your views here.
 
-
+ 
 def index(request):
     return render(request, "index.html")
 
 
 def contact(request):
-    return render(request,"contact.html")
+    return render(request, "contact.html")
+
 
 def quiz_view(request):
     if request.method == "POST":
@@ -58,15 +62,19 @@ def signup(request):
         form = UserRegForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            password = form.cleaned_data['password1']  # Ensure you're using the correct field name
+            # Ensure you're using the correct field name
+            password = form.cleaned_data['password1']
+            print(email,password)
             try:
                 # creating a user with the given email and password
-                user = authe.create_user_with_email_and_password(email, password)
+                user = authe.create_user_with_email_and_password(
+                    email, password)
                 uid = user['localId']
                 request.session['uid'] = uid
                 messages.success(request, 'Account created successfully.')
                 print("created")
-                return redirect('user_login') # Redirect to login page after successful signup
+                # Redirect to login page after successful signup
+                return redirect('user_login')
 
             except Exception as e:
                 messages.error(request, f'Error creating account: {str(e)}')
@@ -123,29 +131,37 @@ def user_login(request):
 
 def logout_user(request):
     logout(request)
-    request.session.pop('uid', None)  # Remove any other session variables related to authentication
+    # Remove any other session variables related to authentication
+    request.session.pop('uid', None)
     request.session.pop('user', None)
     return redirect('index')
+
 
 def products(request):
     return render(request, 'product.html')
 
 
 def path_pro(request):
-    roadmap_html = None
+    zipped_roadmap =[]
     if request.method == "POST":
         course = request.POST.get('goal')
         if course:  # Check if the course input is not empty
             request.session['course'] = course
             roadmap = generate_course_roadmap(course)
-            roadmap_html = generate_roadmap_html(roadmap)
+            print(roadmap)
+            zipped_topics  = list(zip(roadmap["topics"], roadmap["subtopics"]))
+
+        
+            zipped_roadmap = {
+                'zipped_topics': zipped_topics
+            }
+            print(zipped_roadmap)
             # Store roadmap_html in session
-            request.session['roadmap_html'] = roadmap_html
-            request.session['roadmap_data'] = roadmap
+            request.session['roadmap_data'] = zipped_topics
         else:
             messages.error(request, "Please enter a valid goal.")
 
-    return render(request, 'path_pro.html', {'roadmap_html': roadmap_html})
+    return render(request, 'path_pro.html', {'roadmap': zipped_roadmap})
 
 
 def save_roadmap(request):
@@ -154,14 +170,14 @@ def save_roadmap(request):
         course = request.session.get('course')
         if user_email:
             data = json.loads(request.body)
-            roadmap_html = data.get('roadmap_html')
+            roadmap = request.session.get('roadmap_data')
 
-            if roadmap_html:
+            if roadmap:
                 new_roadmap = {
                     "user_email": user_email,
                     "course": course,
-                    "roadmap": roadmap_html,
-                    "is_completed": False
+                    "roadmap": roadmap,
+                    "completed": False
                 }
                 database.child("roadmaps").push(new_roadmap)
                 return JsonResponse({"success": True})
@@ -245,18 +261,19 @@ def habits_pro(request):
 
         # User email (assuming it's stored in session)
         user_email = request.session.get('email', 'default_email@example.com')
-
+        print(user_email)
         # Save each priority in three_prio separately to Firebase
         for priority in three_prio:
             data = {
-                'email': user_email,
+                'user_email': user_email,
                 'priority': priority.strip(),  # assuming priority might have leading/trailing spaces
-                'is_completed': False,  # Assuming this is a new entry and not yet completed
-                'timestamp': datetime.utcnow().isoformat()
+                'completed': False,  # Assuming this is a new entry and not yet completed
+                'date': datetime.now().isoformat(),
+                
             }
 
             # Push data to Firebase
-            database.child('habits').push(data)
+            database.child('user_priorities').push(data)
 
         # Generate timetable and convert to HTML
         answers = generate_daily_timetable([priority_1, commitments, sleep_schedule, time_allocation,
@@ -264,9 +281,9 @@ def habits_pro(request):
                                             existing_habits, different_days])
         time_table = convert_to_html(answers)
 
-        return render(request, 'habits.html', {'time_table': time_table})
+        return render(request, 'habitspro.html', {'time_table': time_table})
     else:
-        return render(request, 'habits.html')
+        return render(request, 'habitspro.html')
 
 
 def generate_roadmap_html(roadmap_text):
@@ -326,8 +343,7 @@ def my_roadmaps(request):
     user_email = request.session.get('email')  # Use email
     print(f"Fetching roadmaps for user_email: {user_email}")  # Debugging line
     if user_email:
-        roadmaps = database.child("roadmaps").order_by_child(
-            "user_email").equal_to(user_email).get().val()
+        roadmaps = database.child("roadmaps").order_by_child("user_email").equal_to(user_email).get().val()
         print(f"Fetched roadmaps: {roadmaps}")  # Debugging line
         if roadmaps:
             roadmaps_list = [(key, value) for key, value in roadmaps.items()]
@@ -345,42 +361,44 @@ def my_roadmaps(request):
         return redirect('user_login')
 
 
-def priority(request):
-    return render(request, 'priority.html')
+@csrf_exempt
+def habits(request):
 
+    return render(request, 'habits.html')
 
+@csrf_exempt
 def submit_priorities(request):
     if request.method == 'POST':
-        user_id = request.POST.get('user_id')
-        priorities = request.POST.getlist('priorities[]')
-        completed = request.POST.getlist('completed[]')
-
+        user_email = request.session['email']
+        priorities = request.POST.get('priorities[]')
+        completed = request.POST.get('completed[]')
+        priorities =json.loads(priorities)
+        completed = json.loads(completed)
+        print(user_email)
+        print(priorities)
+        print(completed)  
         for i, priority in enumerate(priorities):
             data = {
-                'user_id': user_id,
-                'priority_name': priority,
-                'completed': completed[i] == 'true',
-                'date': datetime.datetime.now().isoformat()
+                'user_email': user_email,
+                'priority': priority,
+                'completed': completed[i] == True,
+                'date': datetime.now().isoformat()
             }
             database.child("user_priorities").push(data)
 
         return JsonResponse({'status': 'success'})
 
 
-# views.py
 def get_priorities_data(request):
-    user_id = request.user.id  # Assuming you can get the user ID from the request
-    user_priorities_ref = database.child("user_priorities").child(user_id)
-    user_priorities = user_priorities_ref.get().val()
+    user_email = request.session['email']  # Assuming you can get the user ID from the request
+    print(user_email)
+    user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
+    priorities_data = [habit.val() for habit in user_priorities.each()] if user_priorities.each() else []
+    # priorities_data= [{'is_completed': False, 'priority': 'exercise', 'timestamp': '2024-11-14T15:17:44.881603', 'user_email': 'hellohello@gmail.com'}, {'is_completed': False, 'priority': 'coding', 'timestamp': '2024-11-14T15:17:44.942235', 'user_email': 'hellohello@gmail.com'}, {'is_completed': False, 'priority': 'familytime', 'timestamp': '2024-11-14T15:17:44.990835', 'user_email': 'hellohello@gmail.com'}]
+    print(priorities_data)
 
-    priorities_data = []
-    if user_priorities:
-        priorities_data = list(user_priorities.values())
-
-    return JsonResponse({'data': priorities_data})
-
-# views.py
-
-
-def priorities_page(request):
-    return render(request, 'priorities.html')
+    if priorities_data:
+        return JsonResponse({'data': priorities_data})
+    else:
+        return JsonResponse({'data': []})
+    
