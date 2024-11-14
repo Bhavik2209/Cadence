@@ -1,108 +1,125 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>[Your Company Name] - Products</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/product.css' %}"/>
-  </head>
-  <body>
-    <section id="products" class="products-overview">
-      <h2>Our Products</h2>
-      <div class="product-card">
-        <div class="product-content">
-          <h3 class="product-title">HabisPro</h3>
-          <form action="{% url 'habits_pro' %}" method="post">
-            {% csrf_token %}
+{% extends "base.html" %}
+
+{% block title %}Our Products{% endblock %}
+
+{% block body %}
+<section id="products" class="products-overview py-12 px-4">
+  <h2 class="text-4xl font-bold gradient-text mb-12 text-center">Our Products</h2>
+
+  <div class="flex flex-col items-center gap-12">
+    <!-- HabisPro Input Card - Increased max-width significantly -->
+    <div class="product-card bg-white shadow-lg rounded-lg p-10 w-full max-w-4xl mx-auto">
+      <div class="product-content text-center">
+        <h3 class="product-title text-2xl font-semibold mb-6">HabisPro</h3>
+        <form action="{% url 'habits_pro' %}" method="post" class="space-y-6">
+          {% csrf_token %}
+          
+          <!-- Input Fields - Increased size and improved text display -->
+          <div class="relative">
             <input 
               type="text" 
               name="priority_1" 
-              placeholder="What are your top 3 priorities for the day? (e.g., work, study, exercise, family time, creative projects)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="What are your top 3 priorities for the day?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="commitments" 
-              placeholder="Do you have any fixed commitments? (e.g., work hours, meetings, appointments)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="Do you have any fixed commitments?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="sleep_schedule" 
-              placeholder="What time do you typically wake up and go to bed? (This will help determine the overall length of your day)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="What time do you typically wake up and go to bed?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="time_allocation" 
-              placeholder="How much time do you want to dedicate to each priority? (This can be flexible, but having an idea will help us build a balanced schedule)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="How much time do you want to dedicate to each priority?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="productivity_hours" 
-              placeholder="Are you a morning person, evening person, or somewhere in between? (This will help us allocate time for your most productive hours)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="Are you a morning person, evening person, or somewhere in between?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="daily_goals" 
-              placeholder="Do you have any specific goals you want to achieve during the day? (e.g., finish a project, learn a new skill, read a certain number of pages)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="Do you have any specific goals to achieve?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="day_structure" 
-              placeholder="Do you prefer to have your day structured or more flexible? (This will influence how detailed the timetable is)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="Do you prefer your day structured or flexible?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="break_preferences" 
-              placeholder="What are your ideal breaks like? (e.g., short walks, meditation, listening to music)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="What are your ideal breaks like?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="existing_habits" 
-              placeholder="Do you have any existing habits or routines you'd like to incorporate? (e.g., daily exercise, journaling, reading)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="Do you have any existing habits to incorporate?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
+          </div>
+          <div class="relative">
             <input 
               type="text" 
               name="different_days" 
-              placeholder="Are there any specific days that are different from your usual routine? (e.g., weekends, holidays)" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 10px;"
+              placeholder="Are there specific days different from your usual routine?"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
-            <button type="submit" class="cta-button" style="margin-top: 10px;">Generate</button>
-          </form>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-content">
-          {% if time_table %}
-            <h3 class="product-title">Generated timetable</h3>
-            <div class="roadmap">{{ time_table|safe }}</div>
-          {% else %}
-            <p>No time-table generated yet.</p>
-          {% endif %}
-        </div>
-      </div>
-    </section>
+          </div>
 
-    <footer class="footer">
-      <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
-    </footer>
-  </body>
-</html>
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="cta-button w-full bg-indigo-600 text-white py-4 rounded-lg text-lg font-medium hover:bg-indigo-700 transition duration-200 shadow-md mt-8"
+          >
+            Generate
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Generated Timetable Display Card - Increased width to match input form -->
+    <div class="product-card bg-white shadow-lg rounded-lg p-10 w-full max-w-4xl mx-auto">
+      <div class="product-content text-center">
+        {% if time_table %}
+          <h3 class="product-title text-2xl font-semibold mb-6">Generated Timetable</h3>
+          <div class="roadmap p-8 bg-gray-100 rounded-lg text-gray-700 text-left shadow-inner border border-gray-200 max-h-[800px] overflow-auto">
+            {{ time_table|safe }}
+          </div>
+        {% else %}
+          <p class="text-gray-500">No timetable generated yet. Please fill in the fields above to create one.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,85 +1,95 @@
+{% extends "base.html" %}
 
+{% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>[Your Company Name] - Products</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/product.css' %}"/>
-  </head>
-  <body>
-    <section id="products" class="products-overview">
-      <h2>Our Products</h2>
-      <div class="product-card">
-        <div class="product-content">
-          <h3 class="product-title">PathPro</h3>
-          <form action="{% url 'path_pro' %}" method="post">
-            {% csrf_token %}
-            <input 
-              type="text" 
-              name="goal" 
-              placeholder="Enter your goal" 
-              class="goal-input" 
-              style="width: 100%; height: 50px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px;"
+{% block title %}Commit AI - Products{% endblock %}
+
+{% block body %}
+<section id="products" class="products-overview py-12 px-4">
+  <h2 class="text-4xl font-bold gradient-text mb-12 text-center">Our Products</h2>
+
+  <div class="flex flex-col items-center gap-12">
+    <!-- PathPro Input Card -->
+    <div class="product-card bg-white shadow-lg rounded-lg p-10 w-full max-w-4xl mx-auto">
+      <div class="product-content text-center">
+        <h3 class="product-title text-3xl font-semibold mb-6">PathPro</h3>
+        <p class="text-gray-600 mb-8 text-xl max-w-2xl mx-auto">
+          Enter your goal below to generate a personalized roadmap that will guide you on your learning journey!
+        </p>
+        <form action="{% url 'path_pro' %}" method="post" class="space-y-6 max-w-3xl mx-auto">
+          {% csrf_token %}
+          <div class="relative">
+            <input
+              type="text"
+              name="goal"
+              placeholder="Enter your goal"
+              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
             >
-            <button type="submit" class="cta-button" style="margin-top: 10px;">Explore PathPro</button>
-          </form>
-        </div>
+          </div>
+          <button
+            type="submit"
+            class="cta-button w-full bg-indigo-600 text-white py-4 rounded-lg text-lg font-medium hover:bg-indigo-700 transition duration-200 shadow-md mt-8"
+          >
+            Explore PathPro
+          </button>
+        </form>
       </div>
-      <div class="product-card">
-        <div class="product-content">
-          {% if roadmap_html %}
-            <h3 class="product-title">Generated Roadmap</h3>
-            <div class="roadmap">{{ roadmap_html|safe }}</div>
-            <button class="cta-button" style="margin-top: 10px;" onclick="saveRoadmap()">Let's Go</button>
-          {% else %}
-            <p>No roadmap generated yet.</p>
-          {% endif %}
-        </div>
+    </div>
+
+    <!-- Roadmap Display Card -->
+    <div class="product-card bg-white shadow-lg rounded-lg p-10 w-full max-w-4xl mx-auto">
+      <div class="product-content text-center">
+        {% if roadmap_html %}
+          <h3 class="product-title text-3xl font-semibold mb-6">Generated Roadmap</h3>
+          <div class="roadmap p-8 bg-gray-100 rounded-lg text-gray-700 text-left shadow-inner border border-gray-200 max-h-[800px] overflow-auto">
+            {{ roadmap_html|safe }}
+          </div>
+          <div class="max-w-3xl mx-auto mt-8">
+            <button
+              class="cta-button w-full bg-indigo-600 text-white py-4 rounded-lg text-lg font-medium hover:bg-indigo-700 transition duration-200 shadow-md"
+              onclick="saveRoadmap()"
+            >
+              Let's Go
+            </button>
+          </div>
+        {% else %}
+          <p class="text-gray-500 text-lg">No roadmap generated yet. Please enter your goal above to create one.</p>
+        {% endif %}
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
-    <footer class="footer">
-      <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
-    </footer>
-
-
-    <script>
-      function saveRoadmap() {
-        fetch("{% url 'save_roadmap' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify({
-                roadmap_html: document.querySelector('.roadmap').innerHTML
-            })
+<script>
+  function saveRoadmap() {
+    fetch("{% url 'save_roadmap' %}", {
+      method: "POST",
+      headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+        body: JSON.stringify({
+            roadmap_html: document.querySelector('.roadmap').innerHTML
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to save roadmap.');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                alert("Roadmap saved successfully!");
-                window.location.href = '/commit/my-roadmaps/';  // Redirect to my_roadmaps.html
-            } else {
-                alert("Failed to save roadmap: " + data.error);
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred. Please try again.");
-        });
-    }
-    
-    </script>
-
-
-  </body>
-</html>
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to save roadmap.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        alert("Roadmap saved successfully!");
+        window.location.href = '/commit/my-roadmaps/';
+      } else {
+        alert("Failed to save roadmap: " + data.error);
+      }
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
+    });
+  }
+</script>
+{% endblock %}
