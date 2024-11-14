@@ -1,125 +1,221 @@
 {% extends "base.html" %}
 
-{% block title %}Our Products{% endblock %}
-
 {% block body %}
-<section id="products" class="products-overview py-12 px-4">
-  <h2 class="text-4xl font-bold gradient-text mb-12 text-center">Our Products</h2>
+    <style>
+        .prioritybody {
+            background: linear-gradient(to right, #141E30, #243B55);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+  
+        .container {
+            text-align: center;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            margin: auto;
+            
+            border-radius: 10px;
+        }
+        h1, h2 {
+            margin-bottom: 20px;
+        }
+        #date {
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        .priority-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .priority-item label {
+            margin-left: 10px;
+            font-size: 1.1em;
+        }
+        .checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            background-color: #fff;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.15em;
+            height: 1.15em;
+            border: 0.15em solid currentColor;
+            border-radius: 0.15em;
+            transform: translateY(-0.075em);
+            display: grid;
+            place-content: center;
+        }
+        .checkbox::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #000;
+            background-color: CanvasText;
+            transform-origin: bottom left;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 23%, 80% 0, 43% 62%);
+        }
+        .checkbox:checked::before {
+            transform: scale(1);
+        }
+        .submit-btn {
+            background-color: #ff7e5f;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        #prioritiesChart {
+            margin-top: 50px;
+            max-width: 100%;
+        }
+    </style>
+<div class='prioritybody'>
+    <div class="container">
+        <h1>Welcome!</h1>
+        <div id="date"></div>
+        <h2>Have you completed your priorities for today?</h2>
+        <form id="prioritiesForm">
 
-  <div class="flex flex-col items-center gap-12">
-    <!-- HabisPro Input Card - Increased max-width significantly -->
-    <div class="product-card bg-white shadow-lg rounded-lg p-10 w-full max-w-4xl mx-auto">
-      <div class="product-content text-center">
-        <h3 class="product-title text-2xl font-semibold mb-6">HabisPro</h3>
-        <form action="{% url 'habits_pro' %}" method="post" class="space-y-6">
-          {% csrf_token %}
-          
-          <!-- Input Fields - Increased size and improved text display -->
-          <div class="relative">
-            <input 
-              type="text" 
-              name="priority_1" 
-              placeholder="What are your top 3 priorities for the day?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="commitments" 
-              placeholder="Do you have any fixed commitments?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="sleep_schedule" 
-              placeholder="What time do you typically wake up and go to bed?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="time_allocation" 
-              placeholder="How much time do you want to dedicate to each priority?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="productivity_hours" 
-              placeholder="Are you a morning person, evening person, or somewhere in between?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="daily_goals" 
-              placeholder="Do you have any specific goals to achieve?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="day_structure" 
-              placeholder="Do you prefer your day structured or flexible?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="break_preferences" 
-              placeholder="What are your ideal breaks like?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="existing_habits" 
-              placeholder="Do you have any existing habits to incorporate?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-          <div class="relative">
-            <input 
-              type="text" 
-              name="different_days" 
-              placeholder="Are there specific days different from your usual routine?"
-              class="goal-input w-full h-16 px-6 py-3 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm transition text-left whitespace-normal overflow-visible"
-            >
-          </div>
-
-          <!-- Submit Button -->
-          <button 
-            type="submit" 
-            class="cta-button w-full bg-indigo-600 text-white py-4 rounded-lg text-lg font-medium hover:bg-indigo-700 transition duration-200 shadow-md mt-8"
-          >
-            Generate
-          </button>
+            <div id="priority-item">
+            </div>
+            <button type="button" class="submit-btn" onclick="submitPriorities()"  >Submit</button>
         </form>
-      </div>
-    </div>
 
-    <!-- Generated Timetable Display Card - Increased width to match input form -->
-    <div class="product-card bg-white shadow-lg rounded-lg p-10 w-full max-w-4xl mx-auto">
-      <div class="product-content text-center">
-        {% if time_table %}
-          <h3 class="product-title text-2xl font-semibold mb-6">Generated Timetable</h3>
-          <div class="roadmap p-8 bg-gray-100 rounded-lg text-gray-700 text-left shadow-inner border border-gray-200 max-h-[800px] overflow-auto">
-            {{ time_table|safe }}
-          </div>
-        {% else %}
-          <p class="text-gray-500">No timetable generated yet. Please fill in the fields above to create one.</p>
-        {% endif %}
-      </div>
+        <canvas id="prioritiesChart" width="400" height="200"></canvas>
     </div>
-  </div>
-</section>
-{% endblock %}
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function submitPriorities() {
+            const form = document.getElementById('prioritiesForm');
+            const formData = new FormData(form);
+            
+            const priorities = [];
+            const completed = [];
+            
+            // Iterate over formData entries
+            for (let [key, value] of formData.entries()) {
+                // Check if the key starts with 'priority' to include only priority inputs
+                if (key.startsWith('priority')) {
+                    priorities.push(value);  // Push priority label/text
+            
+                    // Check the checkbox's checked status using the `form.elements` API
+                    completed.push(form.elements[key].checked);
+                }
+            }
+            
+            console.log("Priorities:", priorities);  // Array of priority labels
+            console.log("Completed:", completed);    // Array of checkbox statuses (true/false)
+            
+            
+            formData.append('priorities[]', JSON.stringify(priorities));
+            formData.append('completed[]', JSON.stringify(completed));
+
+            fetch('/commit/submit_priorities/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Priorities submitted successfully!');
+            
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function loadChart() {
+            fetch('/commit/get_priorities_data/')
+                .then(response => response.json())
+                .then(data => {
+                    const ctx = document.getElementById('prioritiesChart').getContext('2d');
+                    const prioritiesData = data.data;
+
+                    // Process data for chart
+                    const labels = [...new Set(prioritiesData.map(d => d.priority))];
+                    if(labels!==null){
+                        
+                        console.log(labels);
+                        const container = document.getElementById("priority-item");
+                    // Loop through the priorities array and create checkboxes and labels
+                        labels.forEach((prior, index) => {
+                            // Create checkbox element
+                            const checkbox = document.createElement("input");
+                            checkbox.type = "checkbox";
+                            checkbox.className = "checkbox";
+                            checkbox.id = `priority${index + 1}`;
+                            checkbox.value = prior
+                            checkbox.name = `priority${index + 1}`;
+
+                            // Create label element
+                            const label = document.createElement("label");
+                            label.htmlFor = `priority${index + 1}`;
+                            label.textContent = prior;
+
+                            // Append checkbox and label to the container
+                            container.appendChild(checkbox);
+                            container.appendChild(label);
+
+                            // Optionally add a line break for better readability
+                            container.appendChild(document.createElement("br"));
+                    });
+                }
+                    //to make
+                    const completionData = labels.map(label => {
+                        return prioritiesData.filter(d => d.priority === label && d.completed).length;
+                    });
+                    console.log(completionData)
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{    
+                                label: 'Priority Completion',
+                                data: completionData,
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Display today's date
+            const today = new Date();
+            const dateElement = document.getElementById('date');
+            dateElement.textContent = `Today is ${today.toDateString()}`;
+
+            // Load the chart
+            loadChart();
+        });
+    </script>
+    {% endblock  %}

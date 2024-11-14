@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
-
+import json
 # Function to generate content based on a course input
 def generate_course_roadmap(course):
     # Load environment variables if needed
@@ -26,7 +26,12 @@ def generate_course_roadmap(course):
 
     # Prompt to generate a detailed roadmap for the specified course
     prompt = [
-        f"Generate a detailed and comprehensive {course} roadmap and make sure the roadmap is realistic and includes all the topics with basics. The roadmap should contain only basic topics and just list out its applications at the end. Ensure that content is original, informative, and maintains a consistent throughput. The roadmap must be detaileda and roadmap must be phase wise."
+        f'''Generate a detailed and comprehensive {course} roadmap and make sure the roadmap is realistic and includes all the topics with basics. The roadmap should contain only basic topics and just list out its applications at the end. Ensure that content is original, informative, and maintains a consistent throughput. The roadmap must be detailed and topics must be phase wise.Return the roadmap in the form of json format only:
+        {{
+            "topics" :["topicwithbasics1", "topicwithbasics2" , "topicwithbasics3"],
+            "subtopics" :[["topic1_subtopics"] , ["topic2_subtopics"],["topic3_subtopics"]]
+
+        }}'''
     ]
 
     # Generate content based on the prompt
@@ -34,6 +39,14 @@ def generate_course_roadmap(course):
 
     # Extract the generated text from the response
     res = response.text
+    roadmap_str = res.replace('```json', '').replace('```', '').strip()
+    
+    # Convert JSON string to list of questions 
+    try:
+        roadmap = json.loads(roadmap_str)
+        print(type(roadmap))
+        return roadmap
+    except json.JSONDecodeError: 
+        return json.JSONDecodeError
 
-    return res
 
