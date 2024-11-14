@@ -1,61 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>[Your Company Name] - Products</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/product.css' %}"/>
-  </head>
-  <body>
-    <header class="header">
-      <div class="hero-content">
-        <h2>
-          Unleash the power of AI to streamline your learning and productivity.
-        </h2>
-        <a href="#" class="cta-button">Learn More</a>
-      </div>
-    </header>
+{% extends "base.html" %}
 
-    <section id="products" class="products-overview">
-      <h2>Our Products</h2>
-      <div class="product-card">
+{% load static %}
+
+{% block title %}Commit AI - Products{% endblock %}
+
+{% block body %}
+<style>
+  body {
+    background-color: #f9f9f9;
+    color: #333;
+    font-family: 'Inter', sans-serif;
+  }
+  .gradient-text {
+    background-image: linear-gradient(90deg, #4f46e5 0%, #9333ea 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .cta-button {
+    background: linear-gradient(90deg, #4f46e5 0%, #9333ea 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background 0.3s;
+  }
+  .cta-button:hover {
+    background: #2563eb;
+  }
+  .hero-content {
+    background: linear-gradient(to right, #4f46e5, #9333ea);
+    color: white;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+  .products-overview {
+    padding: 2rem;
+    text-align: center;
+  }
+  .product-card {
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    margin: 1rem;
+    transition: transform 0.3s ease-in-out;
+  }
+  .product-card:hover {
+    transform: translateY(-5px);
+  }
+  .product-title {
+    font-size: 1.75rem;
+    color: #4f46e5;
+    font-weight: 700;
+  }
+  .key-features {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+  }
+  .key-features li {
+    padding: 0.5rem 0;
+    color: #4b5563;
+  }
+  footer {
+    background-color: #ffffff;
+    padding: 1rem;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+  }
+</style>
+  <!-- Hero Section -->
+  <header class="hero-content">
+    <h2 class="text-4xl font-semibold text-white">
+      Unleash the Power of AI to Streamline Your Learning and Productivity
+    </h2>
+    <a href="#" class="cta-button mt-4 inline-block">Learn More</a>
+  </header>
+
+  <!-- Products Section -->
+  <section id="products" class="products-overview py-8">
+    <h2 class="text-3xl font-bold gradient-text mb-6">Our Products</h2>
+    <div class="flex flex-wrap justify-center">
+      <!-- PathPro Card -->
+      <div class="product-card max-w-sm">
         <div class="product-content">
           <h3 class="product-title">PathPro</h3>
-          <p>
-            Generate comprehensive roadmaps to master any skill with ease. Track
-            your progress, take quizzes, and earn badges as you go.
+          <p class="text-gray-600">
+            Generate comprehensive roadmaps to master any skill with ease. Track your progress, take quizzes, and earn badges as you go.
           </p>
           <ul class="key-features">
             <li>Personalized Roadmaps</li>
-            <li>Progress tracking</li>
-            <li>Interactive quizzes</li>
-            <li>Achievement badges</li>
+            <li>Progress Tracking</li>
+            <li>Interactive Quizzes</li>
+            <li>Achievement Badges</li>
           </ul>
           <a href="{% url 'path_pro' %}" class="cta-button">Explore PathPro</a>
         </div>
       </div>
-      <div class="product-card">
+
+      <!-- TimeTrack Card -->
+      <div class="product-card max-w-sm">
         <div class="product-content">
           <h3 class="product-title">TimeTrack</h3>
-          <p>
-            Create customized timetables by answering a few simple questions.
-            Stay on track with your goals and monitor your progress
-            effortlessly.
+          <p class="text-gray-600">
+            Create customized timetables by answering a few simple questions. Stay on track with your goals and monitor your progress effortlessly.
           </p>
           <ul class="key-features">
-            <li>Easy timetable creation</li>
-            <li>Goal tracking</li>
-            <li>Progress monitoring</li>
-            <li>Simple setup</li>
+            <li>Easy Timetable Creation</li>
+            <li>Goal Tracking</li>
+            <li>Progress Monitoring</li>
+            <li>Simple Setup</li>
           </ul>
           <a href="{% url 'time_track' %}" class="cta-button">Discover TimeTrack</a>
         </div>
       </div>
-    </section>
-
-    <footer class="footer">
-      <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
-    </footer>
-  </body>
-</html>
+    </div>
+  </section>
+{% endblock %}

@@ -1,247 +1,168 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800&display=swap" rel="stylesheet">
     
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     
-    <link rel="canonical" href="https://flowbite.com/marketing-ui/demo/services/services-3/">
+    <title>{% block title %}Commit AI{% endblock %}</title>
 
-
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://flowbite.com/marketing-ui/demo/app.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://flowbite.com/marketing-ui/demo/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="https://flowbite.com/marketing-ui/demo/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://flowbite.com/marketing-ui/demo/favicon-16x16.png">
-    <link rel="icon" type="image/png" href="https://flowbite.com/marketing-ui/demo/favicon.ico">
-    <link rel="manifest" href="https://flowbite.com/marketing-ui/demo/site.webmanifest">
-    <link rel="mask-icon" href="https://flowbite.com/marketing-ui/demo/safari-pinned-tab.svg" color="#5bbad5">
-    
-    
     <style>
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            font-family: 'Inter', sans-serif;
+        }
         .gradient-text {
-            background-image: linear-gradient(
-                90deg,
-                hsl(240deg 100% 68%) 0%,
-                hsl(276deg 81% 62%) 9%,
-                hsl(304deg 71% 58%) 18%,
-                hsl(321deg 100% 63%) 27%,
-                hsl(331deg 100% 66%) 36%,
-                hsl(344deg 100% 70%) 45%,
-                hsl(1deg 100% 74%) 55%,
-                hsl(18deg 100% 72%) 64%,
-                hsl(29deg 100% 70%) 73%,
-                hsl(38deg 100% 71%) 82%,
-                hsl(46deg 100% 73%) 91%,
-                hsl(55deg 98% 77%) 100%
-            );
+            background-image: linear-gradient(90deg, #4f46e5 0%, #9333ea 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-family: 'Poppins', sans-serif;
         }
-        body.bg-black {
-            background-color: black;
+        .nav-link {
+            color: #4b5563;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #2563eb;
+        }
+        .primary-button {
+            background: linear-gradient(90deg, #4f46e5 0%, #9333ea 100%);
             color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background 0.3s;
         }
-        .gradient-back {
-            background-image: linear-gradient(
-                90deg,
-                hsl(240deg 70% 72%) 0%,
-                hsl(276deg 62% 70%) 11%,
-                hsl(311deg 66% 70%) 22%,
-                hsl(331deg 100% 76%) 33%,
-                hsl(345deg 100% 77%) 44%,
-                hsl(4deg 100% 79%) 56%,
-                hsl(21deg 100% 76%) 67%,
-                hsl(33deg 100% 73%) 78%,
-                hsl(43deg 100% 73%) 89%,
-                hsl(55deg 90% 74%) 100%
-            );
+        .primary-button:hover {
+            background: #2563eb;
         }
-        .gradient-black-and-blue{
-            background-image: linear-gradient(
-  210deg,
-  hsl(0deg 0% 0%) 29%,
-  hsl(217deg 100% 3%) 61%,
-  hsl(217deg 100% 5%) 73%,
-  hsl(216deg 100% 7%) 81%,
-  hsl(216deg 100% 10%) 87%,
-  hsl(218deg 100% 13%) 91%,
-  hsl(217deg 100% 15%) 94%,
-  hsl(217deg 100% 17%) 96%,
-  hsl(217deg 100% 20%) 98%,
-  hsl(217deg 100% 23%) 99%,
-  hsl(217deg 100% 25%) 100%,
-  hsl(217deg 100% 27%) 101%,
-  hsl(217deg 100% 30%) 101%,
-  hsl(217deg 100% 33%) 102%,
-  hsl(217deg 100% 35%) 102%,
-  hsl(217deg 100% 37%) 102%,
-  hsl(217deg 100% 40%) 101%,
-  hsl(217deg 100% 43%) 101%,
-  hsl(217deg 100% 45%) 101%,
-  hsl(217deg 100% 47%) 100%,
-  hsl(217deg 100% 50%) 100%
-);
+        .user-slider {
+            width: 100%;
+            max-width: 20rem;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            right: 0;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 50;
         }
-
+        footer {
+            background-color: #ffffff;
+            border-top: 1px solid #e5e7eb;
+        }
+        
     </style>
-    <title>{% block title %}Commit AI{% endblock %}</title>
 </head>
-<body class='gradient-black-and-blue'>
+<body class="min-h-screen flex flex-col justify-between">
 
-
-                <header class="mt-5">
-                    <nav class="bg-black border-gray-200 px-4 lg:px-6 py-1 dark:bg-gray-800">
-                        <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-                            <a href="{% url 'index' %}" class="flex items-center">
-                                <span class="mr-3 text-2xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-400 to-pink-600 bg-clip-text text-transparent font-extrabold">Commit AI</span>
-                            </a>
-                <div class="flex items-center lg:order-2">
-                    {% if request.session.user %}
-                        <!-- User Icon Button -->
-                        <button id="user-icon-button" class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm p-2.5 dark:bg-gray-600 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zM10 12a6 6 0 00-6 6h2a4 4 0 018 0h2a6 6 0 00-6-6z" /></svg>
-                        </button>
-                        <!-- Slider Panel -->
-                        <div id="user-slider" class="fixed top-0 right-0 w-80 h-full gradient-black-and-blue shadow-lg transform translate-x-full transition-transform duration-300 z-50">
-                            <div class="relative p-6">
-                                <button id="close-slider-button" class="absolute top-4 right-4 text-gray-700 hover:text-gray-900 focus:outline-none">
-                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                                </button>
-                                <div class="mt-8 ">
-                                    <h2 class="text-2xl font-semibold mb-4 text-white">User Details</h2>
-                                    <p class="text-gray-600">Email: {{ request.session.user.email }}</p>
-                                    <ul class="mt-6 space-y-2">
-                                        <li><a href="{% url 'my_roadmaps' %}" class="block py-2 px-4 bg-gray-100 text-black hover:bg-gray-200 rounded">My Roadmaps</a></li>
-                                        <li><a href="{% url 'priority' %}" class="block py-2 px-4 bg-gray-100 text-black hover:bg-gray-200 rounded">Habits</a></li>
-                                    </ul>
-                                    <form method="post" action="{% url 'logout_user' %}" class="mt-6">
-                                        {% csrf_token %}
-                                        <button class="w-full text-white bg-gradient-to-r from-indigo-400 to-pink-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-red-600 dark:hover:bg-red-700 focus:outline-none dark:focus:ring-red-800" type="submit">Logout</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    {% else %}
-                        <a href="{% url 'user_login' %}" class="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Log in</a>
-                        <a href="{% url 'signup' %}" class="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 mr-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800">Sign up</a>
-                    {% endif %}
-                    <button data-collapse-toggle="mobile-menu-2" type="button" class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="mobile-menu-2" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
-                        <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+    <!-- Navbar -->
+    <header class="bg-white shadow-sm">
+        <nav class="container mx-auto flex justify-between items-center py-4 px-6">
+            <a href="{% url 'index' %}" class="text-2xl font-bold gradient-text">Commit AI</a>
+            
+            <div class="hidden lg:flex space-x-6" id="mobile-menu">
+                <a href="{% url 'index' %}" class="nav-link">Home</a>
+                <a href="{% url 'products' %}" class="nav-link">Products</a>
+                {% if request.session.user %}
+                    <a href="{% url 'path_pro' %}" class="nav-link">PathPro</a>
+                    <a href="{% url 'habits_pro' %}" class="nav-link">HabitPro</a>
+                {% endif %}
+                <a href="{% url 'contact' %}" class="nav-link">Contact</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                {% if request.session.user %}
+                    <button id="user-icon-button" class="text-gray-800 bg-gray-200 p-2 rounded-full hover:bg-gray-300 focus:ring-4 focus:ring-gray-300">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 10a4 4 0 100-8 4 4 0 000 8zM10 12a6 6 0 00-6 6h2a4 4 0 018 0h2a6 6 0 00-6-6z" /></svg>
                     </button>
-                </div>
-                <div class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1" id="mobile-menu-2">
-                    <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                        <li>
-                            <a href="#" class="block py-2 pr-4 pl-3 text-white rounded bg-primary-700 lg:bg-transparent lg:text-primary-700 lg:p-0 dark:text-white" aria-current="page">Home</a>
-                        </li>
-                        
-                        <li>
-                            <a href="{% url 'products' %}" class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">products</a>
-                        </li>
-                        
-                        {% if request.session.user %}
-                        <li>
-                            <a href="{% url 'path_pro' %}" class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">PathPro</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'habits_pro' %}" class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">HabitPro</a>
-                        </li>
-                        {% endif %}
-                        <li>
-                            <a href="{% url 'contact' %}" class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Team</a>
-                        </li>
-                        <li>
-                            <a href="{% url 'contact' %}" class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
-                        </li>
-                    </ul>
-                </div>
+                {% else %}
+                    <a href="{% url 'user_login' %}" class="nav-link hover:text-blue-500">Log in</a>
+                    <a href="{% url 'signup' %}" class="primary-button">Sign up</a>
+                {% endif %}
+                <button data-collapse-toggle="mobile-menu" class="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
+                </button>
             </div>
         </nav>
     </header>
-    <!-- Overlay for clicking outside the slider to close it -->
-    <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-40"></div>
-    {% block body %}{% endblock %}
-    
-    <footer class="">
-        <!-- component -->
-<div class="w-full min-h-screen flex items-center justify-center">
-    <div class="md:w-2/3 w-full px-4 text-white flex flex-col">
-        <div class="w-full text-7xl font-bold">
-            <h1 class="w-full md:w-2/3">How can we help you. get
-                in touch</h1>
-        </div>
-        <div class="flex mt-8 flex-col md:flex-row md:justify-between">
-            <p class="w-full md:w-2/3 text-gray-400">To ensure that all Wikipedia content is verifiable, anyone may question an uncited claim. If your work has been tagged</p>
-            <div class="w-44 pt-6 md:pt-0">
-                <a class="bg-gradient-to-r from-indigo-400 to-pink-600 justify-center text-center rounded-lg shadow px-10 py-3 flex items-center">Contact US</a>
-            </div>
-        </div>
-        <div class="flex flex-col">
-            <div class="flex mt-24 mb-12 flex-row justify-between">
-                <div class="">
-                    <span class="mr-3 text-2xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-400 to-pink-600 bg-clip-text text-transparent font-extrabold">Commit AI</span>
-                </div>
-                <a class="hidden md:block cursor-pointer text-gray-600 hover:text-white uppercase">About</a>
-                <a class="hidden md:block cursor-pointer text-gray-600 hover:text-white uppercase">Services</a>
-                <a class="hidden md:block cursor-pointer text-gray-600 hover:text-white uppercase">Why us</a>
-                <a class="hidden md:block cursor-pointer text-gray-600 hover:text-white uppercase">Contact</a>
-                <div class="flex flex-row space-x-8 items-center justify-between">
-                    <a>
-                        <svg width="6" height="12" viewBox="0 0 6 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3.89782 12V6.53514H5.67481L5.93895 4.39547H3.89782V3.03259C3.89782 2.41516 4.06363 1.99243 4.91774 1.99243H6V0.0847928C5.47342 0.0262443 4.94412 -0.00202566 4.41453 0.000112795C2.84383 0.000112795 1.76542 0.994936 1.76542 2.82122V4.39147H0V6.53114H1.76928V12H3.89782Z" fill="white"/>
-                        </svg>                            
-                    </a>
-                    <a>
-                        <svg width="12" height="13" viewBox="0 0 12 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5.99536 2.91345C5.17815 2.91345 4.39441 3.23809 3.81655 3.81594C3.2387 4.3938 2.91406 5.17754 2.91406 5.99475C2.91406 6.81196 3.2387 7.5957 3.81655 8.17356C4.39441 8.75141 5.17815 9.07605 5.99536 9.07605C6.81257 9.07605 7.59631 8.75141 8.17417 8.17356C8.75202 7.5957 9.07666 6.81196 9.07666 5.99475C9.07666 5.17754 8.75202 4.3938 8.17417 3.81594C7.59631 3.23809 6.81257 2.91345 5.99536 2.91345ZM5.99536 7.99586C5.46446 7.99586 4.9553 7.78496 4.57989 7.40955C4.20448 7.03415 3.99358 6.52499 3.99358 5.99408C3.99358 5.46318 4.20448 4.95402 4.57989 4.57861C4.9553 4.20321 5.46446 3.99231 5.99536 3.99231C6.52626 3.99231 7.03542 4.20321 7.41083 4.57861C7.78624 4.95402 7.99714 5.46318 7.99714 5.99408C7.99714 6.52499 7.78624 7.03415 7.41083 7.40955C7.03542 7.78496 6.52626 7.99586 5.99536 7.99586Z" fill="white"/>
-                            <path d="M9.19863 3.51848C9.59537 3.51848 9.91698 3.19687 9.91698 2.80013C9.91698 2.4034 9.59537 2.08179 9.19863 2.08179C8.8019 2.08179 8.48029 2.4034 8.48029 2.80013C8.48029 3.19687 8.8019 3.51848 9.19863 3.51848Z" fill="white"/>
-                            <path d="M11.6821 2.06975C11.5279 1.67138 11.2921 1.30961 10.99 1.00759C10.6879 0.705576 10.326 0.469972 9.92759 0.31586C9.46135 0.140842 8.9688 0.0462069 8.4709 0.0359839C7.82919 0.00799638 7.62594 0 5.99867 0C4.37139 0 4.16282 -6.70254e-08 3.52643 0.0359839C3.02891 0.0456842 2.53671 0.140339 2.07108 0.31586C1.67255 0.469792 1.31059 0.705333 1.00844 1.00737C0.706289 1.30941 0.47061 1.67127 0.316526 2.06975C0.141474 2.53595 0.0470554 3.02855 0.0373167 3.52643C0.00866281 4.16748 0 4.37072 0 5.99867C0 7.62594 -4.96485e-09 7.83319 0.0373167 8.4709C0.0473123 8.96935 0.14127 9.46113 0.316526 9.92825C0.471042 10.3266 0.70695 10.6883 1.00918 10.9903C1.3114 11.2923 1.6733 11.5279 2.07175 11.6821C2.5365 11.8642 3.0289 11.9656 3.52777 11.982C4.16948 12.01 4.37272 12.0187 6 12.0187C7.62728 12.0187 7.83585 12.0187 8.47223 11.982C8.97008 11.9719 9.46262 11.8775 9.92892 11.7028C10.3272 11.5483 10.689 11.3125 10.9911 11.0104C11.2932 10.7083 11.529 10.3466 11.6835 9.94825C11.8587 9.48179 11.9527 8.99 11.9627 8.49156C11.9913 7.85051 12 7.64727 12 6.01932C12 4.39138 12 4.18481 11.9627 3.54709C11.9549 3.04216 11.86 2.54237 11.6821 2.06975ZM10.8705 8.42159C10.8662 8.80562 10.7961 9.18608 10.6633 9.54642C10.5632 9.80555 10.41 10.0409 10.2135 10.2372C10.017 10.4336 9.78162 10.5867 9.52243 10.6866C9.16608 10.8188 8.78967 10.8889 8.4096 10.8938C7.77654 10.9231 7.59796 10.9305 5.97468 10.9305C4.35007 10.9305 4.18414 10.9305 3.53909 10.8938C3.15921 10.8892 2.78298 10.8191 2.42692 10.6866C2.16683 10.5873 1.93048 10.4345 1.73316 10.2381C1.53584 10.0417 1.38194 9.80605 1.28143 9.54642C1.15045 9.18995 1.08039 8.81398 1.07419 8.43425C1.04554 7.8012 1.03887 7.62261 1.03887 5.99933C1.03887 4.37539 1.03887 4.20946 1.07419 3.56375C1.0785 3.17993 1.14859 2.7997 1.28143 2.43958C1.48467 1.91382 1.90116 1.5 2.42692 1.29876C2.78316 1.16691 3.15928 1.09682 3.53909 1.09151C4.17281 1.06286 4.35073 1.05486 5.97468 1.05486C7.59862 1.05486 7.76522 1.05486 8.4096 1.09151C8.7897 1.09609 9.16617 1.1662 9.52243 1.29876C9.7816 1.39889 10.017 1.55211 10.2134 1.74858C10.4099 1.94504 10.5631 2.18041 10.6633 2.43958C10.7942 2.79606 10.8643 3.17203 10.8705 3.55175C10.8992 4.18547 10.9065 4.36339 10.9065 5.98734C10.9065 7.61062 10.9065 7.78521 10.8778 8.42226H10.8705V8.42159Z" fill="white"/>
-                        </svg>    
-                    </a>
-                    <a href="https://www.youtube.com/channel/UCjtCbnkIaiCJgj13sEZ9iqw">
-                        <svg width="13" height="9" viewBox="0 0 13 9" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12.7355 1.415C12.6616 1.14357 12.517 0.896024 12.3162 0.697014C12.1154 0.498004 11.8654 0.354468 11.5911 0.280692C10.5739 0.00450089 6.5045 4.87928e-06 6.5045 4.87928e-06C6.5045 4.87928e-06 2.43578 -0.00449139 1.41795 0.259496C1.14379 0.336667 0.894302 0.482233 0.693428 0.68222C0.492554 0.882207 0.347041 1.1299 0.270859 1.40152C0.00259923 2.40737 9.51671e-07 4.49358 9.51671e-07 4.49358C9.51671e-07 4.49358 -0.0025972 6.59006 0.263714 7.58564C0.413109 8.13609 0.851549 8.57094 1.40885 8.71931C2.43643 8.9955 6.49476 9 6.49476 9C6.49476 9 10.5641 9.00449 11.5813 8.74115C11.8557 8.6675 12.106 8.52429 12.3073 8.32569C12.5086 8.12709 12.6539 7.87996 12.729 7.60876C12.998 6.60355 12.9999 4.51798 12.9999 4.51798C12.9999 4.51798 13.0129 2.42086 12.7355 1.415ZM5.20282 6.42628L5.20607 2.57244L8.58823 4.50257L5.20282 6.42628Z" fill="white"/>
-                        </svg>                            
-                    </a>
-                </div>
-            </div>
-            <hr class="border-gray-600"/>
-            <p class="w-full text-center my-12 text-gray-600">Copyright © 2024 Commit AI</p>
+
+    <!-- User Slider -->
+    <div id="user-slider" class="user-slider">
+        <div class="p-6 relative">
+            <button id="close-slider-button" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            </button>
+            <h2 class="text-2xl font-semibold mb-4">User Details</h2>
+            <p>Email: {{ request.session.user.email }}</p>
+            <ul class="space-y-2 mt-6">
+                <li><a href="{% url 'my_roadmaps' %}" class="block py-2 px-4 bg-gray-100 text-gray-800 rounded hover:bg-gray-200">My Roadmaps</a></li>
+                <li><a href="{% url 'priority' %}" class="block py-2 px-4 bg-gray-100 text-gray-800 rounded hover:bg-gray-200">Habits</a></li>
+            </ul>
+            <form method="post" action="{% url 'logout_user' %}" class="mt-6">
+                {% csrf_token %}
+                <button type="submit" class="w-full primary-button">Logout</button>
+            </form>
         </div>
     </div>
-</div>
+
+    <!-- Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-40"></div>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white py-8">
+        <div class="container mx-auto px-6 text-center md:text-left">
+            <h2 class="text-3xl font-bold mb-4">How can we help you? Get in touch</h2>
+            <p class="text-gray-600 mb-8">If you have any questions or need support, feel free to reach out.</p>
+            <a href="#" class="primary-button">Contact Us</a>
+            <hr class="my-8 border-gray-300">
+            <div class="flex justify-center md:justify-between">
+                <span class="text-2xl font-bold gradient-text">Commit AI</span>
+                <nav class="flex space-x-6 mt-6 md:mt-0">
+                    <a href="#" class="text-gray-600 hover:text-gray-900 uppercase">About</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-900 uppercase">Services</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-900 uppercase">Why us</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-900 uppercase">Contact</a>
+                </nav>
+            </div>
+            <p class="text-gray-600 mt-4">&copy; 2024 Commit AI. All rights reserved.</p>
+        </div>
     </footer>
+
+    <!-- JavaScript for User Slider -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userIconButton = document.getElementById('user-icon-button');
+            const userSlider = document.getElementById('user-slider');
+            const closeSliderButton = document.getElementById('close-slider-button');
+            const overlay = document.getElementById('overlay');
+
+            userIconButton.addEventListener('click', () => {
+                userSlider.style.transform = 'translateX(0)';
+                overlay.classList.remove('hidden');
+            });
+
+            closeSliderButton.addEventListener('click', () => {
+                userSlider.style.transform = 'translateX(100%)';
+                overlay.classList.add('hidden');
+            });
+
+            overlay.addEventListener('click', () => {
+                userSlider.style.transform = 'translateX(100%)';
+                overlay.classList.add('hidden');
+            });
+        });
+    </script>
 </body>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const userIconButton = document.getElementById('user-icon-button');
-        const userSlider = document.getElementById('user-slider');
-        const closeSliderButton = document.getElementById('close-slider-button');
-        const overlay = document.getElementById('overlay');
-
-        function openSlider() {
-            userSlider.classList.remove('translate-x-full');
-            overlay.classList.remove('hidden');
-        }
-
-        function closeSlider() {
-            userSlider.classList.add('translate-x-full');
-            overlay.classList.add('hidden');
-        }
-
-        userIconButton.addEventListener('click', openSlider);
-        closeSliderButton.addEventListener('click', closeSlider);
-        overlay.addEventListener('click', closeSlider);
-    });
-</script>
 </html>

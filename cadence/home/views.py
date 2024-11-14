@@ -24,7 +24,7 @@ config = {
     "storageBucket": os.getenv("storageBucket"),
     "messagingSenderId": os.getenv("messagingSenderId"),
     "appId":  os.getenv("appId"),
-    "measurementId": os.getenv("databaseURL")
+    "measurementId": os.getenv("measurementId")
 }
 
 firebase = pyrebase.initialize_app(config)
