@@ -39,10 +39,20 @@
     <!-- Roadmap Display Card -->
     <div class="product-card bg-white shadow-lg rounded-lg p-10 w-full max-w-4xl mx-auto">
       <div class="product-content text-center">
-        {% if roadmap_html %}
+        {% if roadmap %}
           <h3 class="product-title text-3xl font-semibold mb-6">Generated Roadmap</h3>
           <div class="roadmap p-8 bg-gray-100 rounded-lg text-gray-700 text-left shadow-inner border border-gray-200 max-h-[800px] overflow-auto">
-            {{ roadmap_html|safe }}
+
+
+            {% for topic, subtopics in roadmap.zipped_topics %}
+            <h2>{{ topic }}</h2>
+            <ul>
+                {% for subtopic in subtopics %}
+                    <li>{{ subtopic }}</li>
+                {% endfor %}
+            </ul>
+            {% endfor %}
+
           </div>
           <div class="max-w-3xl mx-auto mt-8">
             <button
@@ -81,7 +91,7 @@
     .then(data => {
       if (data.success) {
         alert("Roadmap saved successfully!");
-        window.location.href = '/commit/my-roadmaps/';
+      
       } else {
         alert("Failed to save roadmap: " + data.error);
       }
