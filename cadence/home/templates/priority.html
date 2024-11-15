@@ -126,7 +126,7 @@
             formData.append('priorities[]', JSON.stringify(priorities));
             formData.append('completed[]', JSON.stringify(completed));
 
-            fetch('/submit_priorities/', {
+            fetch('/commit/submit_priorities/', {
                 method: 'POST',
                 body: formData
             })
@@ -143,9 +143,10 @@
         }
 
         function loadChart() {
-            fetch('/get_priorities_data/')
+            fetch('/commit/get_priorities_data/')
                 .then(response => response.json())
                 .then(data => {
+                    console.log('Fetched data:', data);
                     const ctx = document.getElementById('prioritiesChart').getContext('2d');
                     const prioritiesData = data.data;
 
@@ -154,6 +155,9 @@
                     const completionData = labels.map(label => {
                         return prioritiesData.filter(d => d.priority_name === label && d.completed).length;
                     });
+
+                    console.log('Labels:', labels);
+                    console.log('Completion Data:', completionData);
 
                     new Chart(ctx, {
                         type: 'bar',
@@ -175,6 +179,9 @@
                             }
                         }
                     });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                 });
         }
 

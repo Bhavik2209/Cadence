@@ -16,6 +16,6 @@ urlpatterns = [
     path('save_roadmap/', views.save_roadmap, name='save_roadmap'),
     path('priority/', views.priority, name='priority'),
     # path('get_user_priorities/', views.get_user_priorities, name='get_user_priorities'),
-    # path('submit_priorities/', views.submit_priorities, name='submit_priorities'),
-    # path('get_priorities_data/', views.get_priorities_data, name='get_priorities_data'),
+    path('submit_priorities/', views.submit_priorities, name='submit_priorities'),
+    path('get_priorities_data/', views.get_priorities_data, name='get_priorities_data'),
 ]

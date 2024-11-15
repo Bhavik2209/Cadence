@@ -14,6 +14,7 @@ from .habits.app import generate_daily_timetable
 import re
 import json
 from dotenv import load_dotenv
+from django.views.decorators.csrf import csrf_exempt
 import os
 load_dotenv()
 config = {
@@ -349,18 +350,24 @@ def priority(request):
     return render(request, 'priority.html')
 
 
+
+
 def submit_priorities(request):
     if request.method == 'POST':
         user_id = request.POST.get('user_id')
-        priorities = request.POST.getlist('priorities[]')
-        completed = request.POST.getlist('completed[]')
-
+        priorities = request.POST.get('priorities[]')
+        completed = request.POST.get('completed[]')
+        priorities =json.loads(priorities)
+        completed = json.loads(completed)
+        print(user_id)
+        print(type(priorities))
+        print(type(completed))  
         for i, priority in enumerate(priorities):
             data = {
                 'user_id': user_id,
                 'priority_name': priority,
                 'completed': completed[i] == 'true',
-                'date': datetime.datetime.now().isoformat()
+                'date': datetime.now().isoformat()
             }
             database.child("user_priorities").push(data)
 
@@ -368,19 +375,15 @@ def submit_priorities(request):
 
 
 # views.py
+@csrf_exempt
 def get_priorities_data(request):
     user_id = request.user.id  # Assuming you can get the user ID from the request
+    print(user_id)
     user_priorities_ref = database.child("user_priorities").child(user_id)
     user_priorities = user_priorities_ref.get().val()
 
     priorities_data = []
     if user_priorities:
         priorities_data = list(user_priorities.values())
-
+    print(priorities_data)
     return JsonResponse({'data': priorities_data})
-
-# views.py
-
-
-def priorities_page(request):
-    return render(request, 'priorities.html')
