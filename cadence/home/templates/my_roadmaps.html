@@ -4,14 +4,15 @@
 <style>
     /* General Body Styling */
     .roadmapbody {
-        color: black;
-        font-family: Arial, sans-serif;
+        color: #2d3748;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
         margin: 0;
-        padding: 0;
+        padding: 20px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        background-color: #f9f9f9;
+        background-color: #f7fafc;
+        min-height: 100vh;
     }
 
     /* Section Title Styling */
@@ -19,130 +20,325 @@
         width: 100%;
         max-width: 1200px;
         text-align: center;
-        margin: 40px 0 20px;
-        font-size: 24px;
-        font-weight: bold;
-        color: #333;
+        margin: 40px 0 30px;
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a202c;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: linear-gradient(90deg, #4CAF50, #45a049);
+        border-radius: 2px;
     }
 
     /* Section Layout */
     .section {
         width: 100%;
         max-width: 1200px;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        margin-bottom: 40px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        padding: 20px;
     }
 
     /* Card Styling */
     .card {
         background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        width: 30%;
-        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 25px;
         box-sizing: border-box;
         text-align: center;
-        margin: 15px;
         cursor: pointer;
         position: relative;
-        transition: transform 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        overflow: hidden;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4CAF50, #45a049);
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
     .card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .card:hover::before {
+        opacity: 1;
     }
 
     .card h3 {
-        margin-top: 0;
-        color: #333;
+        margin: 0 0 15px;
+        color: #1a202c;
+        font-size: 24px;
+        font-weight: 600;
     }
 
     .card h2 {
         font-size: 20px;
-        color: #555;
+        color: #4a5568;
+        margin: 10px 0;
+        font-weight: 500;
     }
 
-    /* CTA Button Styling */
-    .cta-button {
-        margin-top: 10px;
-        padding: 12px 24px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-    }
-
-    .cta-button:hover {
-        background-color: #45a049;
-    }
-
-    .cta-button:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
+    .card p {
+        color: #718096;
+        line-height: 1.6;
+        margin: 10px 0 0;
     }
 
     /* Modal Styling */
     .modal {
         display: none;
         position: fixed;
-        z-index: 1;
+        z-index: 1000;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        animation: modalFadeIn 0.3s ease;
+    }
+
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
 
     .modal-content {
         background-color: #fff;
-        margin: 10% auto;
-        padding: 20px;
-        border: 1px solid #ddd;
-        width: 80%;
-        max-width: 600px;
-        border-radius: 8px;
-        color: #333;
+        margin: 5% auto;
+        padding: 40px;
+        width: 90%;
+        max-width: 700px;
+        border-radius: 20px;
+        color: #2d3748;
+        position: relative;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        animation: modalContentSlide 0.3s ease;
+    }
+
+    @keyframes modalContentSlide {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
 
     .close {
-        color: #aaa;
-        float: right;
+        position: absolute;
+        right: 25px;
+        top: 25px;
+        color: #a0aec0;
         font-size: 28px;
         font-weight: bold;
+        transition: all 0.2s ease;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
     }
 
-    .close:hover,
-    .close:focus {
-        color: #333;
-        text-decoration: none;
-        cursor: pointer;
+    .close:hover {
+        color: #2d3748;
+        background-color: #f7fafc;
+        transform: rotate(90deg);
     }
 
-    /* Modal Text Styling */
+    /* Modal Content Styling */
     #modal-text {
-        margin-bottom: 20px;
+        margin: 20px 0 30px;
+        line-height: 1.8;
+        color: #4a5568;
     }
 
-    /* Modal Button Style */
-    #modal-button {
-        background-color: #4CAF50;
+    #modal-text input[type="checkbox"] {
+        margin-right: 10px;
+        width: 18px;
+        height: 18px;
+        accent-color: #4CAF50;
+    }
+
+    #modal-text label {
+        display: flex;
+        align-items: center;
+        margin: 15px 0;
+        padding: 10px;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+    }
+
+    #modal-text label:hover {
+        background-color: #f7fafc;
+    }
+
+    /* CTA Button Styling */
+    .cta-button {
+        background: linear-gradient(90deg, #4CAF50, #45a049);
         color: white;
         border: none;
-        padding: 12px 24px;
-        border-radius: 5px;
+        padding: 14px 28px;
+        border-radius: 8px;
         cursor: pointer;
         font-size: 16px;
-        transition: background-color 0.3s ease;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+        max-width: 300px;
+        display: block;
+        margin: 20px auto 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
-    #modal-button:hover {
-        background-color: #45a049;
+    .cta-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .cta-button:disabled {
+        background: #e2e8f0;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .section {
+            grid-template-columns: 1fr;
+            padding: 10px;
+        }
+
+        .modal-content {
+            margin: 10% auto;
+            padding: 25px;
+            width: 95%;
+        }
+
+        .section-title {
+            font-size: 28px;
+        }
+    }
+    .roadmap-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .roadmap-topic {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .topic-header {
+        transition: background-color 0.2s;
+    }
+    
+    .topic-header:hover {
+        background-color: #f3f4f6;
+    }
+    
+    .topic-content {
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .hidden {
+        display: none;
+    }
+    .roadmap-modal-content {
+        padding: 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .topic-section {
+        margin-bottom: 24px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .main-topic {
+        background: #f8f9fa;
+        padding: 12px 16px;
+        border-radius: 8px 8px 0 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .main-topic h3 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .subtopics {
+        padding: 16px;
+    }
+    
+    .subtopic-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+    
+    .subtopic-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .topic-checkbox {
+        margin-right: 12px;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .subtopic-item label {
+        cursor: pointer;
+        color: #4a5568;
+        font-size: 0.95rem;
+    }
+    
+    .topic-checkbox:checked + label {
+        color: #2563eb;
+        font-weight: 500;
     }
 </style>
 
@@ -150,7 +346,7 @@
     <div class="section-title">Current Roadmaps</div>
     <div class="section">
         {% for key, roadmap in roadmaps %}
-            {% if not roadmap.is_completed %}
+            {% if not roadmap.completed %}
                 <div class="card" onclick="showModal('{{ roadmap.roadmap|escapejs }}', '{{ roadmap.course|escapejs }}', true)">
                     <h3>Roadmap {{ forloop.counter }}</h3>
                     <h2>{{ roadmap.course }}</h2>
@@ -163,10 +359,12 @@
     <div class="section-title">Completed Roadmaps</div>
     <div class="section">
         {% for key, roadmap in roadmaps %}
-            {% if roadmap.is_completed %}
+            {% if roadmap.completed %}
                 <div class="card" onclick="showModal('{{ roadmap.roadmap|escapejs }}', '{{ roadmap.course|escapejs }}', false)">
                     <h3>Roadmap {{ forloop.counter }}</h3>
+                    <h2>{{ roadmap.course }}</h2>
                     <p>{{ roadmap.name }}</p>
+                    
                 </div>
             {% endif %}
         {% endfor %}
@@ -182,7 +380,7 @@
         {% endfor %}
     </div>
 
-    <!-- The Modal -->
+    <!-- Enhanced Modal -->
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
@@ -197,17 +395,68 @@
 </div>
 
 <script>
+    // Add this to your existing JavaScript
     function showModal(content, courseName, showButton) {
-        document.getElementById('modal-text').innerHTML = content;
-        document.getElementById('myModal').style.display = "block";
-        document.getElementById('course_name').value = courseName;
-        if (showButton) {
-            checkAllCheckboxes();
+        try {
+            // Parse the string representation of the array into actual JSON
+            const roadmapData = JSON.parse(content.replace(/'/g, '"'));
+            const modal = document.getElementById('myModal');
+            const modalText = document.getElementById('modal-text');
+            const modalButton = document.getElementById('modal-button');
+            
+            // Generate HTML structure for the roadmap
+            let html = '<div class="roadmap-modal-content">';
+            
+            roadmapData.forEach((topic, index) => {
+                if (Array.isArray(topic) && topic.length === 2) {
+                    const [mainTopic, subtopics] = topic;
+                    
+                    html += `
+                        <div class="topic-section">
+                            <div class="main-topic">
+                                <h3>${mainTopic}</h3>
+                            </div>
+                            <div class="subtopics">
+                    `;
+                    
+                    subtopics.forEach(subtopic => {
+                        const checkboxId = `checkbox-${index}-${subtopic.replace(/\s+/g, '-')}`;
+                        html += `
+                            <div class="subtopic-item">
+                                <input type="checkbox" id="${checkboxId}" class="topic-checkbox">
+                                <label for="${checkboxId}">${subtopic}</label>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div></div>';
+                }
+            });
+            
+            html += '</div>';
+            
+            // Set the generated HTML to modal content
+            modalText.innerHTML = html;
+            modal.style.display = "block";
+            document.getElementById('course_name').value = courseName;
+            
+            if (showButton) {
+                modalButton.style.display = 'block';
+                checkAllCheckboxes();
+            } else {
+                modalButton.style.display = 'none';
+            }
+    
+            document.body.style.overflow = 'hidden';
+        } catch (e) {
+            console.error('Error parsing roadmap data:', e);
+            console.error('Content:', content);
         }
     }
-
     function closeModal() {
-        document.getElementById('myModal').style.display = "none";
+        const modal = document.getElementById('myModal');
+        modal.style.display = "none";
+        document.body.style.overflow = 'auto';
     }
 
     function checkAllCheckboxes() {
@@ -216,19 +465,18 @@
 
         checkboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
-                if (Array.from(checkboxes).every(checkbox => checkbox.checked)) {
-                    button.disabled = false;
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                button.disabled = !allChecked;
+                
+                if (allChecked) {
+                    button.style.animation = 'pulse 2s infinite';
                 } else {
-                    button.disabled = true;
+                    button.style.animation = 'none';
                 }
             });
         });
 
-        if (Array.from(checkboxes).every(checkbox => checkbox.checked)) {
-            button.disabled = false;
-        } else {
-            button.disabled = true;
-        }
+        button.disabled = !Array.from(checkboxes).every(cb => cb.checked);
     }
 
     window.onclick = function(event) {
@@ -236,6 +484,13 @@
             closeModal();
         }
     }
-</script>
 
+    // Close modal with escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+    
+</script>
 {% endblock %}

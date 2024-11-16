@@ -1,89 +1,381 @@
+{% extends "base.html" %}
+
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>[Your Company Name] - Quiz</title>
-    <link rel="stylesheet" href="{% static 'quiz.css' %}" />
-  </head>
-  <body>
+
+{% block title %}Commit AI - Products{% endblock %}
+
+{% block body %}
+
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: #2d3748;
+            background-color: #f7fafc;
+            line-height: 1.6;
+        }
+
+        /* Header Styling */
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.6;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Quiz Section Styling */
+        .quiz-overview {
+            max-width: 800px;
+            margin: -60px auto 60px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .quiz-overview h2 {
+            text-align: center;
+            font-size: 2rem;
+            color: #1a202c;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .quiz-overview h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            border-radius: 2px;
+        }
+
+        /* Question Card Styling */
+        .question-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(226,232,240,0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .question-title {
+            font-size: 1.2rem;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Options Styling */
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .options label {
+            display: block;
+            cursor: pointer;
+        }
+
+        .option-button {
+            display: block;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .options input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .option-button::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e0;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .options input[type="radio"]:checked + .option-button {
+            border-color: #4CAF50;
+            background-color: #f0fff4;
+            color: #2f855a;
+        }
+
+        .options input[type="radio"]:checked + .option-button::before {
+            border-color: #4CAF50;
+            background-color: #4CAF50;
+            box-shadow: inset 0 0 0 4px white;
+        }
+
+        .option-button:hover {
+            border-color: #4CAF50;
+            background-color: #f7fafc;
+        }
+
+        /* Submit Button Styling */
+        .cta-button {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            margin: 40px auto 0;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(76,175,80,0.3);
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
+        }
+
+        /* Footer Styling */
+        .footer {
+            background-color: #1a202c;
+            color: #a0aec0;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            margin-top: 60px;
+        }
+
+        /* Custom Alert Styling */
+        .custom-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1000;
+            text-align: center;
+            display: none;
+        }
+
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-content h2 {
+                font-size: 2rem;
+            }
+
+            .quiz-overview {
+                padding: 15px;
+                margin-top: -40px;
+            }
+
+            .question-card {
+                padding: 20px;
+            }
+
+            .option-button {
+                padding: 12px 15px 12px 45px;
+            }
+        }
+    </style>
+
     <header class="header">
-      <div class="hero-content">
-        <h2>Test Your Knowledge with Our Quiz</h2>
-      </div>
+        <div class="hero-content">
+            <h2>Test Your Knowledge with Our Quiz</h2>
+        </div>
     </header>
 
     <section id="quiz" class="quiz-overview">
-      <h2>Quiz</h2>
-      <form id="quizForm" action="{% url 'quiz_view' %}">
-        {% comment %} dynamically add all the questions using a for loop {% endcomment %}
-        
-        {% for question in questions %}
-          <div class="question-card">
-            <h3 class="question-title">{{ question.question_name }}</h3>
-            <div class="options">
-              {% for option in question.options %}
-                <label>
-                  <input type="radio" name="q{{ forloop.parentloop.counter }}" value="{{ forloop.counter }}">
-                  <span class="option-button" data-option-index="{{ forloop.counter }}">{{ option }}</span>
-                </label>
-              {% endfor %}
+        <h2>Quiz</h2>
+        <form id="quizForm" method="post" action="{% url 'quiz_view' %}">
+            {% csrf_token %}  <!-- Added CSRF token -->
+            <input type="hidden" name="quiz_submission" value="true">
+            <input type="hidden" name="course_name" value="{{ course_name }}">
+            <input type="hidden" name="marks" id="marks" value="0">
+            {% for question in questions %}
+            <div class="question-card">
+                <h3 class="question-title">{{ question.question_name }}</h3>
+                <div class="options">
+                    {% for option in question.options %}
+                    <label>
+                        <input type="radio" name="q{{ forloop.parentloop.counter }}" value="{{ forloop.counter }}" required>
+                        <span class="option-button">{{ option }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
             </div>
-          </div>
-        {% endfor %}
+            {% endfor %}
 
-        <!-- Hidden input for answer key, passed as JSON -->
-        <input type="hidden" name="answer_key" value="{{ answer_key|safe }}">
-        
-        <button type="submit" class="cta-button">Submit Quiz</button>
-      </form>
+            <input type="hidden" name="answer_key" value="{{ answer_key|safe }}">
+            <button type="submit" class="cta-button">Submit Quiz</button>
+        </form>
     </section>
 
     <footer class="footer">
-      <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
+        <p>&copy; 2024 [Your Company Name]. All rights reserved.</p>
     </footer>
 
+    <!-- Custom Alert Elements -->
+    <div class="alert-overlay" id="alertOverlay"></div>
+    <div class="custom-alert" id="customAlert">
+        <h3 id="alertTitle" style="margin-bottom: 15px; color: #2d3748; font-size: 1.5rem;"></h3>
+        <p id="alertMessage" style="color: #4a5568; margin-bottom: 20px;"></p>
+        <button id="continueButton" class="cta-button" style="margin: 0 auto;">Continue</button>
+    </div>
+
     <script>
-      document.getElementById('quizForm').addEventListener('submit', function(event) {
-          event.preventDefault();
-          const form = event.target;
-          const formData = new FormData(form);
-          const userAnswers = [];
+        function showCustomAlert(title, message, score) {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('alertOverlay').style.display = 'block';
+            document.getElementById('customAlert').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Set the marks in the hidden input
+            document.getElementById('marks').value = score;
+        }
 
-          // Initialize userAnswers with empty strings for each question
-          const totalQuestions = form.querySelectorAll('.question-card').length;
-          for (let i = 0; i < totalQuestions; i++) {
-              userAnswers.push('');
-          }
+        function closeAlert() {
+            document.getElementById('alertOverlay').style.display = 'none';
+            document.getElementById('customAlert').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // Submit the form after showing the score
+            document.getElementById('quizForm').submit();
+        }
 
-          // Update userAnswers with selected option numbers
-          for (let [name, value] of formData.entries()) {
-            if (name !== "answer_key") {
-              const questionIndex = parseInt(name.slice(1)) - 1;
-              userAnswers[questionIndex] = parseInt(value);
+        document.getElementById('quizForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const userAnswers = [];
+            const totalQuestions = form.querySelectorAll('.question-card').length;
+            
+            // Check if all questions are answered
+            let allAnswered = true;
+            for (let i = 1; i <= totalQuestions; i++) {
+                const answer = formData.get(`q${i}`);
+                if (!answer) {
+                    allAnswered = false;
+                    break;
+                }
+                userAnswers.push(parseInt(answer));
             }
-          }
-          
-          // Parse answerKey from JSON string to array
-          const answerKey = JSON.parse(formData.get('answer_key'));
-          let score = 0;
 
-          // Calculate the score based on option numbers
-          answerKey.forEach((correctAnswer, index) => {
-            console.log(typeof(correctAnswer));
-            console.log(typeof(userAnswers[index]));
-              if (userAnswers[index] === correctAnswer) {
-                  score += 1;
-              }
-          });
-          // Display the score
-          if (score >= 7) {
-            alert(`Congratulations! You have completed the module. Your score is: ${score}/10`);
-          } else {
-            alert(`Try again, you haven't passed. Your score is: ${score}/10`);
-          }
-      });
+            if (!allAnswered) {
+                alert('Please answer all questions before submitting.');
+                return;
+            }
+
+            const answerKey = JSON.parse(document.querySelector('input[name="answer_key"]').value);
+            let score = 0;
+
+            answerKey.forEach((correctAnswer, index) => {
+                if (userAnswers[index] === correctAnswer) {
+                    score += 1;
+                }
+            });
+
+            // Calculate score out of 10
+            const finalScore = (score / totalQuestions) * 10;
+
+            if (finalScore >= 7) {
+                showCustomAlert(
+                    "Congratulations! 🎉",
+                    `You have completed the module. Your score is: ${finalScore.toFixed(1)}/10`,
+                    finalScore
+                );
+            } else {
+                showCustomAlert(
+                    "Keep Going! 💪",
+                    `Try again, you haven't passed yet. Your score is: ${finalScore.toFixed(1)}/10`,
+                    finalScore
+                );
+            }
+        });
+
+        // Update continue button to use closeAlert function
+        document.getElementById('continueButton').addEventListener('click', closeAlert);
+
+        // Close alert with escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeAlert();
+            }
+        });
+
+        // Close alert when clicking overlay
+        document.getElementById('alertOverlay').addEventListener('click', closeAlert);
     </script>
-  </body>
-</html>
+
+{% endblock %}

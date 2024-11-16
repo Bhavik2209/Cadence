@@ -16,6 +16,7 @@ from .habits.app import generate_daily_timetable
 import re
 import json
 from dotenv import load_dotenv
+from django.views.decorators.csrf import csrf_exempt
 import os
 
 load_dotenv()
@@ -45,36 +46,77 @@ def contact(request):
     return render(request, "contact.html")
 
 
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.contrib import messages
+import json
+
 def quiz_view(request):
     if request.method == "POST":
-        print("quiz requested")
-        course_name = request.POST.get('course_name')
-        print(course_name)
-        # Your logic to handle the course name and generate the quiz
-        questions_anwers, answer_key = generate_course_quiz(course_name)
-        # print("answer key:", answer_key)
-        return render(request, 'quiz.html', {'questions': questions_anwers, 'answer_key': json.dumps(answer_key)})
-    print("not getting post request")
+        if 'quiz_submission' in request.POST:
+            # Handle quiz submission
+            course_name = request.POST.get('course_name')
+            marks = float(request.POST.get('marks', 0))
+            user_email = request.session.get('email')
 
+            if user_email:
+                try:
+                    # Get all roadmaps for the current user
+                    roadmaps = database.child("roadmaps").get()
+                    
+                    if roadmaps:
+                        for roadmap in roadmaps.each():
+                            roadmap_data = roadmap.val()
+                            # Check if this is the correct roadmap (matching user and course)
+                            if (roadmap_data.get('user_email') == user_email and 
+                                roadmap_data.get('course') == course_name):
+                                
+                                if marks >= 7:
+                                    # Update the completed status in Firebase
+                                    database.child("roadmaps").child(roadmap.key()).update({
+                                        "completed": True
+                                    })
+                                    messages.success(request, f'Congratulations! You have completed the {course_name} roadmap!')
+                                else:
+                                    messages.warning(request, 'You need to score at least 7 marks to complete this roadmap.')
+                                break
+                    
+                    return redirect('my_roadmaps')
+                
+                except Exception as e:
+                    print(f"Error updating roadmap: {str(e)}")
+                    messages.error(request, 'An error occurred while updating your progress.')
+                    return redirect('my_roadmaps')
+            else:
+                messages.error(request, 'User not authenticated')
+                return redirect('login')  # or wherever you want to redirect unauthenticated users
+        else:
+            # Your existing quiz generation code
+            print("quiz requested")
+            course_name = request.POST.get('course_name')
+            questions_anwers, answer_key = generate_course_quiz(course_name)
+            return render(request, 'quiz.html', {
+                'questions': questions_anwers, 
+                'answer_key': json.dumps(answer_key),
+                'course_name': course_name
+            })
+    
+    return redirect('my_roadmaps')
 
 def signup(request):
     if request.method == 'POST':
         form = UserRegForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
-            # Ensure you're using the correct field name
-            password = form.cleaned_data['password1']
-            print(email,password)
+            password = form.cleaned_data['password1']  # Ensure you're using the correct field name
             try:
                 # creating a user with the given email and password
-                user = authe.create_user_with_email_and_password(
-                    email, password)
+                user = authe.create_user_with_email_and_password(email, password)
                 uid = user['localId']
                 request.session['uid'] = uid
                 messages.success(request, 'Account created successfully.')
                 print("created")
-                # Redirect to login page after successful signup
-                return redirect('user_login')
+                return redirect('user_login') # Redirect to login page after successful signup
 
             except Exception as e:
                 messages.error(request, f'Error creating account: {str(e)}')
@@ -286,81 +328,56 @@ def habits_pro(request):
         return render(request, 'habitspro.html')
 
 
-def generate_roadmap_html(roadmap_text):
-    # Break the text into lines
-    lines = roadmap_text.split('\n')
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
-    # Initialize an empty HTML string and a flag for list items
-    html = ""
-    in_list = False
-    last_level = 0
-
-    # Function to close the list tags based on the current and last level
-    def close_lists(current_level):
-        nonlocal html, in_list, last_level
-        while last_level >= current_level:
-            html += "</ul>"
-            last_level -= 1
-        in_list = False
-
-    # Loop through each line and convert to HTML
-    for line in lines:
-        # Remove unwanted prefixes
-        line = line.lstrip('-#* ').strip()
-        # Phase headers
-        if line.startswith("**") and line.endswith("**"):
-            close_lists(0)
-            html += f"<h2 style='font-size: 2em; margin-bottom: 10px;'>{line.strip('**').strip()}</h2>"
-        # Main topics (subheaders)
-        elif line.startswith("Phase") and line.endswith("**"):
-            close_lists(1)
-            html += f"<h3 style='font-size: 1.75em; margin-bottom: 8px;'>{line.strip('**').strip()}<input type='checkbox' style='float: right; margin-right: 10px; width: 20px; height: 20px;'></h3>"
-            last_level = 1
-        # Sub-subheaders
-        elif line.startswith("*") and line.endswith(":"):
-            close_lists(2)
-            html += f"<h4 style='font-size: 1.5em; margin-bottom: 6px;'>{line.strip('*:').strip()}</h4>"
-            last_level = 2
-        # List items
-        elif line.startswith("*"):
-            if not in_list:
-                html += "<ul>"
-                in_list = True
-            html += f"<li style='margin-bottom: 4px;'>{line.strip('*').strip()}</li>"
-        else:
-            close_lists(0)
-            html += f"<p>{line.strip()}</p>"
-
-    close_lists(0)
-
-    # Wrap the HTML in a div
-    html = f"<div class='roadmap'>{html}</div>"
-
-    return html
-
+def generate_roadmap_html(roadmap_data):
+    """Generate structured HTML for roadmap visualization with checkboxes"""
+    html = ['<div class="roadmap-modal-content">']
+    
+    for index, topic in enumerate(roadmap_data):
+        if isinstance(topic, list) and len(topic) == 2:
+            main_topic, subtopics = topic
+            
+            # Create section for main topic
+            html.append(f'''
+                <div class="topic-section">
+                    <div class="main-topic">
+                        <h3>{main_topic}</h3>
+                    </div>
+                    <div class="subtopics">
+            ''')
+            
+            # Add subtopics with checkboxes
+            for subtopic in subtopics:
+                checkbox_id = f"checkbox-{index}-{subtopic.replace(' ', '-')}"
+                html.append(f'''
+                    <div class="subtopic-item">
+                        <input type="checkbox" id="{checkbox_id}" class="topic-checkbox">
+                        <label for="{checkbox_id}">{subtopic}</label>
+                    </div>
+                ''')
+            
+            html.append('</div></div>')
+    
+    html.append('</div>')
+    
+    return '\n'.join(html)
 
 def my_roadmaps(request):
-    user_email = request.session.get('email')  # Use email
-    print(f"Fetching roadmaps for user_email: {user_email}")  # Debugging line
+    user_email = request.session.get('email')
     if user_email:
         roadmaps = database.child("roadmaps").order_by_child("user_email").equal_to(user_email).get().val()
-        print(f"Fetched roadmaps: {roadmaps}")  # Debugging line
         if roadmaps:
             roadmaps_list = [(key, value) for key, value in roadmaps.items()]
-            for key, roadmap in roadmaps_list:
-                roadmap['roadmap_html'] = generate_roadmap_html(
-                    roadmap['roadmap'])
         else:
             roadmaps_list = []
 
         badges = []  # Replace with your logic to get user badges
-
         return render(request, 'my_roadmaps.html', {'roadmaps': roadmaps_list, 'badges': badges})
     else:
         messages.error(request, "User not authenticated. Please log in.")
         return redirect('user_login')
-
-
 @csrf_exempt
 def habits(request):
 
