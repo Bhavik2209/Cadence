@@ -151,14 +151,32 @@
                     const ctx = document.getElementById('prioritiesChart').getContext('2d');
                     const prioritiesData = data.data;
 
-                    // Process data for chart
-                    const labels = [...new Set(prioritiesData.map(d => d.priority))];
-                    if(labels!==null){
+                    if((prioritiesData.length)>0){
+                                            
+                        // Get today's date in YYYY-MM-DD format
+                        const today = new Date().toISOString().split("T")[0];
+
+                        // Use a Map to store the latest status of each priority
+                        const latestPriorities = new Map();
+                        // Iterate through the array to update the latest status for each priority
+                        prioritiesData.forEach(item => {
+                            if (item.date === today) {
+                                latestPriorities.set(item.priority, item.completed);
+                            }
+                        });
+                        console.log("map" , latestPriorities);
+
+                        // Extract priorities where `completed` is `false`
+                        const todaysIncompletePriorities = Array.from(latestPriorities.entries())
+                        .filter(([priority, completed]) => completed === false)
+                        .map(([priority]) => priority);
+
+                        console.log(typeof(prioritiesData[0]['date']))
+                        console.log(todaysIncompletePriorities)
                         
-                        console.log(labels);
                         const container = document.getElementById("priority-item");
-                    // Loop through the priorities array and create checkboxes and labels
-                        labels.forEach((prior, index) => {
+                        // Loop through the priorities array and create checkboxes and labels
+                        todaysIncompletePriorities.forEach((prior, index) => {
                             // Create checkbox element
                             const checkbox = document.createElement("input");
                             checkbox.type = "checkbox";
@@ -166,21 +184,23 @@
                             checkbox.id = `priority${index + 1}`;
                             checkbox.value = prior
                             checkbox.name = `priority${index + 1}`;
-
+                            
                             // Create label element
                             const label = document.createElement("label");
                             label.htmlFor = `priority${index + 1}`;
                             label.textContent = prior;
-
+                            
                             // Append checkbox and label to the container
                             container.appendChild(checkbox);
                             container.appendChild(label);
-
+                            
                             // Optionally add a line break for better readability
                             container.appendChild(document.createElement("br"));
-                    });
-                }
-                    //to make
+                        });
+                        
+                        //to make
+                    const labels = [...new Set(prioritiesData.map(d => d.priority))];
+                    console.log(labels);
                     const completionData = labels.map(label => {
                         return prioritiesData.filter(d => d.priority === label && d.completed).length;
                     });
@@ -205,7 +225,8 @@
                             }
                         }
                     });
-                });
+                } 
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
