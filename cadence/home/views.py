@@ -1,22 +1,17 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-
 from .forms import UserRegForm, UserLoginForm
 from django.contrib.auth import logout
-from datetime import datetime
+from datetime import date
 from django.http import JsonResponse
 import json
 import pyrebase
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
 from .roadmap.quiz import generate_course_quiz
 from .roadmap.app import generate_course_roadmap
 from .habits.app import generate_daily_timetable
-import re
 import json
 from dotenv import load_dotenv
-from django.views.decorators.csrf import csrf_exempt
 import os
 
 load_dotenv()
@@ -310,7 +305,7 @@ def habits_pro(request):
                 'user_email': user_email,
                 'priority': priority.strip(),  # assuming priority might have leading/trailing spaces
                 'completed': False,  # Assuming this is a new entry and not yet completed
-                'date': datetime.now().isoformat(),
+                'date': date.today().isoformat(),
                 
             }
 
@@ -327,43 +322,6 @@ def habits_pro(request):
     else:
         return render(request, 'habitspro.html')
 
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-
-def generate_roadmap_html(roadmap_data):
-    """Generate structured HTML for roadmap visualization with checkboxes"""
-    html = ['<div class="roadmap-modal-content">']
-    
-    for index, topic in enumerate(roadmap_data):
-        if isinstance(topic, list) and len(topic) == 2:
-            main_topic, subtopics = topic
-            
-            # Create section for main topic
-            html.append(f'''
-                <div class="topic-section">
-                    <div class="main-topic">
-                        <h3>{main_topic}</h3>
-                    </div>
-                    <div class="subtopics">
-            ''')
-            
-            # Add subtopics with checkboxes
-            for subtopic in subtopics:
-                checkbox_id = f"checkbox-{index}-{subtopic.replace(' ', '-')}"
-                html.append(f'''
-                    <div class="subtopic-item">
-                        <input type="checkbox" id="{checkbox_id}" class="topic-checkbox">
-                        <label for="{checkbox_id}">{subtopic}</label>
-                    </div>
-                ''')
-            
-            html.append('</div></div>')
-    
-    html.append('</div>')
-    
-    return '\n'.join(html)
-
 def my_roadmaps(request):
     user_email = request.session.get('email')
     if user_email:
@@ -378,6 +336,7 @@ def my_roadmaps(request):
     else:
         messages.error(request, "User not authenticated. Please log in.")
         return redirect('user_login')
+
 @csrf_exempt
 def habits(request):
 
@@ -399,7 +358,7 @@ def submit_priorities(request):
                 'user_email': user_email,
                 'priority': priority,
                 'completed': completed[i] == True,
-                'date': datetime.now().isoformat()
+                'date': date.today().isoformat()
             }
             database.child("user_priorities").push(data)
 
@@ -410,10 +369,9 @@ def get_priorities_data(request):
     user_email = request.session['email']  # Assuming you can get the user ID from the request
     print(user_email)
     user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
-    priorities_data = [habit.val() for habit in user_priorities.each()] if user_priorities.each() else []
-    # priorities_data= [{'is_completed': False, 'priority': 'exercise', 'timestamp': '2024-11-14T15:17:44.881603', 'user_email': 'hellohello@gmail.com'}, {'is_completed': False, 'priority': 'coding', 'timestamp': '2024-11-14T15:17:44.942235', 'user_email': 'hellohello@gmail.com'}, {'is_completed': False, 'priority': 'familytime', 'timestamp': '2024-11-14T15:17:44.990835', 'user_email': 'hellohello@gmail.com'}]
+    priorities_data = [habit.val() for habit in user_priorities.each()] if user_priorities.each else []
     print(priorities_data)
-
+    # priorities_data=[{'completed': False, 'date': '2024-11-17', 'priority': 'coding', 'user_email': 'hellohello@gmail.com'}, {'completed': True, 'date': '2024-11-17', 'priority': 'coding', 'user_email': 'hellohello@gmail.com'}, {'completed': False, 'date': '2024-11-17', 'priority': 'exercise', 'user_email': 'hellohello@gmail.com'}, {'completed': True, 'date': '2024-11-17', 'priority': 'exercise', 'user_email': 'hellohello@gmail.com'}, {'completed': False, 'date': '2024-11-17', 'priority': 'familytime', 'user_email': 'hellohello@gmail.com'}]
     if priorities_data:
         return JsonResponse({'data': priorities_data})
     else:
