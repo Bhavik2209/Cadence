@@ -152,31 +152,18 @@
                     const prioritiesData = data.data;
 
                     if((prioritiesData.length)>0){
-                                            
-                        // Get today's date in YYYY-MM-DD format
-                        const today = new Date().toISOString().split("T")[0];
-
-                        // Use a Map to store the latest status of each priority
-                        const latestPriorities = new Map();
-                        // Iterate through the array to update the latest status for each priority
-                        prioritiesData.forEach(item => {
-                            if (item.date === today) {
-                                latestPriorities.set(item.priority, item.completed);
-                            }
-                        });
-                        console.log("map" , latestPriorities);
-
+                        console.log(prioritiesData[0])
                         // Extract priorities where `completed` is `false`
-                        const todaysIncompletePriorities = Array.from(latestPriorities.entries())
-                        .filter(([priority, completed]) => completed === false)
-                        .map(([priority]) => priority);
+                        const incompletePriorities = prioritiesData[0]['priority'].filter((_, index) => !prioritiesData[0]['completed'][index]);
+
+
 
                         console.log(typeof(prioritiesData[0]['date']))
-                        console.log(todaysIncompletePriorities)
+                        console.log(incompletePriorities)
                         
                         const container = document.getElementById("priority-item");
                         // Loop through the priorities array and create checkboxes and labels
-                        todaysIncompletePriorities.forEach((prior, index) => {
+                        incompletePriorities.forEach((prior, index) => {
                             // Create checkbox element
                             const checkbox = document.createElement("input");
                             checkbox.type = "checkbox";
@@ -199,11 +186,9 @@
                         });
                         
                         //to make
-                    const labels = [...new Set(prioritiesData.map(d => d.priority))];
+                    const labels = prioritiesData[0]['priority'];
                     console.log(labels);
-                    const completionData = labels.map(label => {
-                        return prioritiesData.filter(d => d.priority === label && d.completed).length;
-                    });
+                    const completionData = prioritiesData[0]['count'];
                     console.log(completionData)
                     new Chart(ctx, {
                         type: 'bar',
