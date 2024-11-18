@@ -41,11 +41,6 @@ def contact(request):
     return render(request, "contact.html")
 
 
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.contrib import messages
-import json
-
 def quiz_view(request):
     if request.method == "POST":
         if 'quiz_submission' in request.POST:
@@ -231,59 +226,11 @@ def time_track(request):
     # return render(request, 'login.html', {'form': form})
 
 
-def convert_to_html(input_text):
-    # Split the input text into sections
-    sections = input_text.split('\n\n')
-
-    # Initialize HTML content
-    html_output = ""
-
-    # Iterate over each section to build the HTML
-    for section in sections:
-        # Skip empty sections
-        if not section.strip():
-            continue
-
-        # Handle headers
-        if section.startswith("**"):
-            header = section.strip("**").strip()
-            html_output += f'<h3>{header}</h3>'
-
-        # Handle lists
-        elif section.startswith("* "):
-            html_output += '<ul>'
-            items = section.split('\n')
-            for item in items:
-                if item.startswith("* "):
-                    item_content = item.lstrip("* ").strip()
-                    html_output += f'<li>{item_content}</li>'
-            html_output += '</ul>'
-
-        # Handle nested lists (like timetable)
-        elif section.startswith("**Time Table:**"):
-            timetable_html = '<h3>Time Table</h3>'
-            lines = section.split('\n')[1:]  # Skip the **Time Table:** line
-            for line in lines:
-                if line.startswith("**"):
-                    if "timetable-item" in locals():
-                        timetable_html += timetable_item
-                    time = line.strip("**").strip()
-                    timetable_item = f'<div class="timetable-item"><strong>{time}</strong><ul>'
-                elif line.startswith("* "):
-                    activity = line.lstrip("* ").strip()
-                    timetable_item += f'<li>{activity}</li>'
-            if "timetable-item" in locals():
-                timetable_html += timetable_item + '</ul></div>'
-            html_output += timetable_html
-
-    return html_output
-
-
 def habits_pro(request):
     answers = ''
     time_table = ''
     if request.method == 'POST':
-        priority_1 = request.POST.get('priority_1')
+        priorities = request.POST.get('priorities')
         commitments = request.POST.get('commitments')
         sleep_schedule = request.POST.get('sleep_schedule')
         time_allocation = request.POST.get('time_allocation')
@@ -294,31 +241,38 @@ def habits_pro(request):
         existing_habits = request.POST.get('existing_habits')
         different_days = request.POST.get('different_days')
 
-        three_prio = priority_1.split(",")
-
+        three_prio = priorities.split(",")
+        
         # User email (assuming it's stored in session)
         user_email = request.session.get('email', 'default_email@example.com')
         print(user_email)
+        priorities_list=[]
+        completed_list=[]
+        count_list=[]
         # Save each priority in three_prio separately to Firebase
         for priority in three_prio:
-            data = {
-                'user_email': user_email,
-                'priority': priority.strip(),  # assuming priority might have leading/trailing spaces
-                'completed': False,  # Assuming this is a new entry and not yet completed
-                'date': date.today().isoformat(),
-                
-            }
-
+            priorities_list.append(priority.strip())
+            completed_list.append(False)
+            count_list.append(0)
             # Push data to Firebase
-            database.child('user_priorities').push(data)
+        data = {
+            'user_email': user_email,
+            'priority': priorities_list,  
+            'completed': completed_list,  
+            'count':count_list,
+            'date': date.today().isoformat(),
+            
+        }
+        
+        database.child('user_priorities').push(data)
 
         # Generate timetable and convert to HTML
-        answers = generate_daily_timetable([priority_1, commitments, sleep_schedule, time_allocation,
+        answers = generate_daily_timetable([priorities, commitments, sleep_schedule, time_allocation,
                                             productivity_hours, daily_goals, day_structure, break_preferences,
                                             existing_habits, different_days])
-        time_table = convert_to_html(answers)
 
-        return render(request, 'habitspro.html', {'time_table': time_table})
+
+        return render(request, 'habitspro.html', {'time_table': answers})
     else:
         return render(request, 'habitspro.html')
 
@@ -342,36 +296,65 @@ def habits(request):
 
     return render(request, 'habits.html')
 
+
 @csrf_exempt
 def submit_priorities(request):
     if request.method == 'POST':
         user_email = request.session['email']
-        priorities = request.POST.get('priorities[]')
-        completed = request.POST.get('completed[]')
-        priorities =json.loads(priorities)
-        completed = json.loads(completed)
-        print(user_email)
-        print(priorities)
-        print(completed)  
-        for i, priority in enumerate(priorities):
-            data = {
-                'user_email': user_email,
-                'priority': priority,
-                'completed': completed[i] == True,
-                'date': date.today().isoformat()
-            }
-            database.child("user_priorities").push(data)
+        completed_priorities = json.loads(request.POST.get('priorities[]'))  # List of priorities ticked by the user
+        priorities_data = request.session.get('priorities_data')  # Fetch the existing priorities data
+        priorities_data = priorities_data[0]  # Assuming only one set of priorities is returned
 
-        return JsonResponse({'status': 'success'})
+        print("User Email:", user_email)
+        print("Completed Priorities:", completed_priorities)
+
+        # Iterate over priorities and update the `completed` field
+        for i, priority in enumerate(priorities_data['priority']):
+            if priority in completed_priorities:
+                priorities_data['completed'][i] = True  # Mark as completed
+                priorities_data['count'][i] +=1        # increase the count by 1
+
+
+        # Query Firebase for the user's data and update it
+        user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
+
+        for item in user_priorities.each():  # Loop through each record for the user
+            database.child("user_priorities").child(item.key()).update({
+                "priority": priorities_data["priority"],
+                "completed": priorities_data["completed"],
+                'count':priorities_data["count"],
+                "date": date.today().isoformat()
+            })
+        # Optionally, update the session with the modified `priorities_data`
+        request.session['priorities_data'] = [priorities_data]
+
+        print("Updated Priorities Data:", priorities_data)
+
+        # Return success response
+        return JsonResponse({'status': 'success', 'updated_priorities': priorities_data})
 
 
 def get_priorities_data(request):
     user_email = request.session['email']  # Assuming you can get the user ID from the request
     print(user_email)
-    user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
-    priorities_data = [habit.val() for habit in user_priorities.each()] if user_priorities.each else []
-    print(priorities_data)
-    # priorities_data=[{'completed': False, 'date': '2024-11-17', 'priority': 'coding', 'user_email': 'hellohello@gmail.com'}, {'completed': True, 'date': '2024-11-17', 'priority': 'coding', 'user_email': 'hellohello@gmail.com'}, {'completed': False, 'date': '2024-11-17', 'priority': 'exercise', 'user_email': 'hellohello@gmail.com'}, {'completed': True, 'date': '2024-11-17', 'priority': 'exercise', 'user_email': 'hellohello@gmail.com'}, {'completed': False, 'date': '2024-11-17', 'priority': 'familytime', 'user_email': 'hellohello@gmail.com'}]
+    #getting data froms session
+    priorities_data = request.session['priorities_data']
+    #if doesnt exist then fetch it from db
+    if not priorities_data:
+        user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
+        priorities_data = [habit.val() for habit in user_priorities.each()] if user_priorities.each else []
+    
+    print(" priorities_data" ,priorities_data)
+    #so if the completed is set to true , check if the date is today's date and if it is than do nothing , and if the day is not same then change the completed to false so to show the priorities again.
+    for prior in priorities_data:
+        for comple in prior['completed']:
+            if (comple==True) and (prior['date'] != date.today().isoformat()):
+                comple=False
+            
+    print("updated priorities_data" ,priorities_data)
+    request.session['priorities_data'] =priorities_data 
+    #example data
+    # priorities_data=[{'completed': [True, True, True], 'count': [1, 1, 1], 'date': '2024-11-18', 'priority': ['coding', 'familytime', 'swimming'], 'user_email': 'hellohello@gmail.com'}]
     if priorities_data:
         return JsonResponse({'data': priorities_data})
     else:
