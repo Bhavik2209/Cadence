@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
-
+import json
 # Function to generate content based on a course input
 def generate_daily_timetable(answers):
     # Load environment variables if needed
@@ -26,8 +26,8 @@ def generate_daily_timetable(answers):
 
     # Prompt to generate a detailed roadmap for the specified course
     prompt = [
-        '''
-        f"these are some questions for generating daily routine time table : 
+        f'''
+        these are some questions for generating daily routine time table : 
         What are your top 3 priorities for the day? (e.g., work, study, exercise, family time, creative projects)
         Do you have any fixed commitments? (e.g., work hours, meetings, appointments)
         What time do you typically wake up and go to bed? (This will help determine the overall length of your day)
@@ -38,7 +38,12 @@ def generate_daily_timetable(answers):
         What are your ideal breaks like? (e.g., short walks, meditation, listening to music)
         Do you have any existing habits or routines you'd like to incorporate? (e.g., daily exercise, journaling, reading)
         Are there any specific days that are different from your usual routine? (e.g., weekends, holidays).
-        and these are the answers of these 10 questions {answers}. based on this questions and answers create a complete and realistic time table for me."
+        and these are the answers of these 10 questions {answers}. based on this questions and answers create a complete and realistic time table for me.
+        Give the response in a json, formatted like this:
+        {{
+            "time_slot" : 
+            "activity" :
+        }}
         '''
     ]
 
@@ -47,6 +52,11 @@ def generate_daily_timetable(answers):
 
     # Extract the generated text from the response
     res = response.text
-
-    return res
-
+    res =res.replace('```json', '').replace('```', '').strip()
+    # Convert JSON string to list of questions 
+    try:
+        timetable = json.loads(res)
+        print(timetable)
+        return timetable
+    except json.JSONDecodeError: 
+        return json.JSONDecodeError
