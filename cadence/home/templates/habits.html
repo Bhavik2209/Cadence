@@ -157,10 +157,6 @@
                         const incompletePriorities = prioritiesData[0]['priority'].filter((_, index) => !prioritiesData[0]['completed'][index]);
 
 
-
-                        console.log(typeof(prioritiesData[0]['date']))
-                        console.log(incompletePriorities)
-                        
                         const container = document.getElementById("priority-item");
                         // Loop through the priorities array and create checkboxes and labels
                         incompletePriorities.forEach((prior, index) => {
@@ -189,7 +185,7 @@
                     const labels = prioritiesData[0]['priority'];
                     console.log(labels);
                     const completionData = prioritiesData[0]['count'];
-                    console.log(completionData)
+                    console.log(completionData);
                     new Chart(ctx, {
                         type: 'bar',
                         data: {

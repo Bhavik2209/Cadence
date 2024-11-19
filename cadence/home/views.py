@@ -314,7 +314,7 @@ def submit_priorities(request):
                 priorities_data['completed'][i] = True  # Mark as completed
                 priorities_data['count'][i] +=1        # increase the count by 1
 
-
+        print(priorities_data) 
         # Query Firebase for the user's data and update it
         user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
 
@@ -337,24 +337,29 @@ def submit_priorities(request):
 def get_priorities_data(request):
     user_email = request.session['email']  # Assuming you can get the user ID from the request
     print(user_email)
+
     #getting data froms session
-    priorities_data = request.session['priorities_data']
-    #if doesnt exist then fetch it from db
-    if not priorities_data:
+    try:
+        priorities_data=request.session['priorities_data']
+    #if not then fetch it from db
+    except:
+        print("fetching data from db")
         user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
         priorities_data = [habit.val() for habit in user_priorities.each()] if user_priorities.each else []
-    
+
     print(" priorities_data" ,priorities_data)
     #so if the completed is set to true , check if the date is today's date and if it is than do nothing , and if the day is not same then change the completed to false so to show the priorities again.
     for prior in priorities_data:
-        for comple in prior['completed']:
+        for i, comple in enumerate(prior['completed']):
             if (comple==True) and (prior['date'] != date.today().isoformat()):
-                comple=False
-            
+                prior['completed'][i]=False
+             
     print("updated priorities_data" ,priorities_data)
     request.session['priorities_data'] =priorities_data 
+
     #example data
     # priorities_data=[{'completed': [True, True, True], 'count': [1, 1, 1], 'date': '2024-11-18', 'priority': ['coding', 'familytime', 'swimming'], 'user_email': 'hellohello@gmail.com'}]
+    
     if priorities_data:
         return JsonResponse({'data': priorities_data})
     else:
