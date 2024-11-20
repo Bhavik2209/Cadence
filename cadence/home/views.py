@@ -241,6 +241,7 @@ def habits_pro(request):
         existing_habits = request.POST.get('existing_habits')
         different_days = request.POST.get('different_days')
 
+        #getting each priority
         three_prio = priorities.split(",")
         
         # User email (assuming it's stored in session)
@@ -249,29 +250,49 @@ def habits_pro(request):
         priorities_list=[]
         completed_list=[]
         count_list=[]
-        # Save each priority in three_prio separately to Firebase
-        for priority in three_prio:
+
+        for priority in three_prio: 
             priorities_list.append(priority.strip())
             completed_list.append(False)
             count_list.append(0)
-            # Push data to Firebase
+
         data = {
             'user_email': user_email,
             'priority': priorities_list,  
             'completed': completed_list,  
             'count':count_list,
             'date': date.today().isoformat(),
-            
         }
-        
-        database.child('user_priorities').push(data)
+        #checking if there is data in session if it exists then updaet it in db
+        try:
+            priorities_data=request.session['priorities_data']
+            print(priorities_data) 
+            user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
+            if user_priorities:
+                print("priorities_data exist")
+                for item in user_priorities.each():  # Loop through each record for the user
+                    database.child("user_priorities").child(item.key()).update({
+                        "priority":priorities_list,
+                        "completed": completed_list, 
+                        'count':count_list,
+                        "date": date.today().isoformat()
+                    })
+
+        #if not then push it to db
+        except:
+
+            print("pushing data-",data)
+
+            database.child('user_priorities').push(data)
 
         # Generate timetable and convert to HTML
+
         answers = generate_daily_timetable([priorities, commitments, sleep_schedule, time_allocation,
                                             productivity_hours, daily_goals, day_structure, break_preferences,
                                             existing_habits, different_days])
 
-
+        print(answers)
+        request.session['priorities_data'] =[data]  
         return render(request, 'habitspro.html', {'time_table': answers})
     else:
         return render(request, 'habitspro.html')
@@ -314,13 +335,12 @@ def submit_priorities(request):
                 priorities_data['completed'][i] = True  # Mark as completed
                 priorities_data['count'][i] +=1        # increase the count by 1
 
-
+        print(priorities_data) 
         # Query Firebase for the user's data and update it
         user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
 
         for item in user_priorities.each():  # Loop through each record for the user
             database.child("user_priorities").child(item.key()).update({
-                "priority": priorities_data["priority"],
                 "completed": priorities_data["completed"],
                 'count':priorities_data["count"],
                 "date": date.today().isoformat()
@@ -337,25 +357,30 @@ def submit_priorities(request):
 def get_priorities_data(request):
     user_email = request.session['email']  # Assuming you can get the user ID from the request
     print(user_email)
+
     #getting data froms session
-    priorities_data = request.session['priorities_data']
-    #if doesnt exist then fetch it from db
-    if not priorities_data:
+    try:
+        priorities_data=request.session['priorities_data']
+    #if not then fetch it from db
+    except:
+        print("fetching data from db")
         user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
         priorities_data = [habit.val() for habit in user_priorities.each()] if user_priorities.each else []
-    
+
     print(" priorities_data" ,priorities_data)
     #so if the completed is set to true , check if the date is today's date and if it is than do nothing , and if the day is not same then change the completed to false so to show the priorities again.
     for prior in priorities_data:
-        for comple in prior['completed']:
+        for i, comple in enumerate(prior['completed']):
             if (comple==True) and (prior['date'] != date.today().isoformat()):
-                comple=False
-            
+                prior['completed'][i]=False
+             
     print("updated priorities_data" ,priorities_data)
-    request.session['priorities_data'] =priorities_data 
+
     #example data
     # priorities_data=[{'completed': [True, True, True], 'count': [1, 1, 1], 'date': '2024-11-18', 'priority': ['coding', 'familytime', 'swimming'], 'user_email': 'hellohello@gmail.com'}]
+    
     if priorities_data:
+        request.session['priorities_data'] =priorities_data 
         return JsonResponse({'data': priorities_data})
     else:
         return JsonResponse({'data': []})

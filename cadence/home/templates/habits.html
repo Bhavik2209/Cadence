@@ -338,6 +338,43 @@
                     });
     
                     const ctx = document.getElementById('prioritiesChart').getContext('2d');
+                    const prioritiesData = data.data;
+
+                    if((prioritiesData.length)>0){
+                        console.log(prioritiesData[0])
+                        // Extract priorities where `completed` is `false`
+                        const incompletePriorities = prioritiesData[0]['priority'].filter((_, index) => !prioritiesData[0]['completed'][index]);
+
+
+                        const container = document.getElementById("priority-item");
+                        // Loop through the priorities array and create checkboxes and labels
+                        incompletePriorities.forEach((prior, index) => {
+                            // Create checkbox element
+                            const checkbox = document.createElement("input");
+                            checkbox.type = "checkbox";
+                            checkbox.className = "checkbox";
+                            checkbox.id = `priority${index + 1}`;
+                            checkbox.value = prior
+                            checkbox.name = `priority${index + 1}`;
+                            
+                            // Create label element
+                            const label = document.createElement("label");
+                            label.htmlFor = `priority${index + 1}`;
+                            label.textContent = prior;
+                            
+                            // Append checkbox and label to the container
+                            container.appendChild(checkbox);
+                            container.appendChild(label);
+                            
+                            // Optionally add a line break for better readability
+                            container.appendChild(document.createElement("br"));
+                        });
+                        
+                        //to make
+                    const labels = prioritiesData[0]['priority'];
+                    console.log(labels);
+                    const completionData = prioritiesData[0]['count'];
+                    console.log(completionData);
                     new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -379,15 +416,16 @@
                     });
                 }
             });
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        const today = new Date();
-        const dateElement = document.getElementById('date');
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        dateElement.textContent = today.toLocaleDateString('en-US', options);
-        
-        loadChart();
-    });
-</script>
-{% endblock %}
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Display today's date
+            const today = new Date();
+            const dateElement = document.getElementById('date');
+            dateElement.textContent = `Today is ${today.toDateString()}`;
+
+            // Load the chart
+            loadChart();
+        });
+    </script>
+    {% endblock  %}
