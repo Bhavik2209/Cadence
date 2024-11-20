@@ -1,227 +1,393 @@
 {% extends "base.html" %}
 
 {% block body %}
-    <style>
-        .prioritybody {
-            background: linear-gradient(to right, #141E30, #243B55);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #fff;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        margin: 0;
+        color: #1e293b;
+    }
+
+    .dashboard {
+        min-height: 100vh;
+        padding: 1rem;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .headerr {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .headerr h1 {
+        font-size: clamp(1.5rem, 4vw, 2.5rem);
+        color: #0f172a;
+        margin-bottom: 0.5rem;
+    }
+
+    #date {
+        font-size: clamp(0.875rem, 2vw, 1.1rem);
+        color: #64748b;
+        margin-bottom: 2rem;
+    }
+
+    .cards-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .stat-card h3 {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin: 0 0 0.5rem 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-card .value {
+        font-size: clamp(1.5rem, 3vw, 1.875rem);
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .priorities-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+
+    .priorities-section h2 {
+        font-size: clamp(1.25rem, 3vw, 1.5rem);
+        margin-bottom: 1rem;
+    }
+
+    .priority-item {
+        display: flex;
+        align-items: center;
+        padding: 0.875rem;
+        margin: 0.5rem 0;
+        background: #f8fafc;
+        border-radius: 8px;
+        transition: background-color 0.2s;
+    }
+
+    .priority-item:hover {
+        background: #f1f5f9;
+    }
+
+    .checkbox {
+        appearance: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid #cbd5e1;
+        border-radius: 6px;
+        margin-right: 1rem;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .checkbox:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    .checkbox:checked::before {
+        content: "✓";
+        position: absolute;
+        color: white;
+        font-size: 0.875rem;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .priority-item label {
+        font-size: 0.875rem;
+        color: #334155;
+        cursor: pointer;
+        word-break: break-word;
+    }
+
+    .submit-btn {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        width: 100%;
+        max-width: 200px;
+        margin: 1rem auto;
+        display: block;
+    }
+
+    .submit-btn:hover {
+        background-color: #2563eb;
+    }
+
+    .analytics-container {
+        width: 100%;
+        margin-top: 2rem;
+    }
+
+    .chart-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .chart-container h2 {
+        font-size: clamp(1.25rem, 3vw, 1.5rem);
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    #prioritiesChart {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+
+    @media (max-width: 640px) {
+        .dashboard {
+            padding: 0.5rem;
         }
-  
+
         .container {
-            text-align: center;
-            padding: 20px;
-            width: 90%;
-            max-width: 500px;
-            margin: auto;
-            
-            border-radius: 10px;
+            padding: 1rem;
         }
-        h1, h2 {
-            margin-bottom: 20px;
+
+        .cards-container {
+            grid-template-columns: 1fr;
         }
-        #date {
-            margin-bottom: 30px;
-            font-size: 1.2em;
-        }
+
         .priority-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 15px 20px;
-            margin: 10px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 0.75rem;
         }
-        .priority-item label {
-            margin-left: 10px;
-            font-size: 1.1em;
+
+        .chart-container {
+            padding: 0.5rem;
         }
-        .checkbox {
-            -webkit-appearance: none;
-            appearance: none;
-            background-color: #fff;
-            margin: 0;
-            font: inherit;
-            color: currentColor;
-            width: 1.15em;
-            height: 1.15em;
-            border: 0.15em solid currentColor;
-            border-radius: 0.15em;
-            transform: translateY(-0.075em);
-            display: grid;
-            place-content: center;
-        }
-        .checkbox::before {
-            content: "";
-            width: 0.65em;
-            height: 0.65em;
-            transform: scale(0);
-            transition: 120ms transform ease-in-out;
-            box-shadow: inset 1em 1em #000;
-            background-color: CanvasText;
-            transform-origin: bottom left;
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 23%, 80% 0, 43% 62%);
-        }
-        .checkbox:checked::before {
-            transform: scale(1);
-        }
-        .submit-btn {
-            background-color: #ff7e5f;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        #prioritiesChart {
-            margin-top: 50px;
-            max-width: 100%;
-        }
-    </style>
-<div class='prioritybody'>
+    }
+</style>
+
+<div class="dashboard">
     <div class="container">
-        <h1>Welcome!</h1>
-        <div id="date"></div>
-        <h2>Have you completed your priorities for today?</h2>
-        <form id="prioritiesForm">
+        <div class="headerr">
+            <h1>Priority Dashboard</h1>
+            <div id="date"></div>
+        </div>
 
-            <div id="priority-item">
+        <div class="cards-container">
+            <div class="stat-card">
+                <h3>Completion Rate</h3>
+                <div class="value" id="completionRate">0%</div>
             </div>
-            <button type="button" class="submit-btn" onclick="submitPriorities()"  >Submit</button>
-        </form>
+            <div class="stat-card">
+                <h3>Total Tasks</h3>
+                <div class="value" id="totalTasks">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Streak</h3>
+                <div class="value" id="streak">0 days</div>
+            </div>
+        </div>
 
-        <canvas id="prioritiesChart" width="400" height="200"></canvas>
+        <div class="priorities-section">
+            <h2>Today's Priorities</h2>
+            <form id="prioritiesForm">
+                <div id="priority-item"></div>
+                <button type="button" class="submit-btn" onclick="submitPriorities()">Update Progress</button>
+            </form>
+        </div>
+
+        <div class="analytics-container">
+            <div class="chart-container">
+                <h2>Progress Tracking</h2>
+                <canvas id="prioritiesChart"></canvas>
+            </div>
+        </div>
     </div>
 </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        function submitPriorities() {
-            const form = document.getElementById('prioritiesForm');
-            const formData = new FormData(form);
-            
-            const priorities = [];
-            const completed = [];
-            
-            // Iterate over formData entries
-            for (let [key, value] of formData.entries()) {
-                // Check if the key starts with 'priority' to include only priority inputs
-                if (key.startsWith('priority')) {
-                    priorities.push(value);  // Push priority label/text
-            
-                    // Check the checkbox's checked status using the `form.elements` API
-                    completed.push(form.elements[key].checked);
-                }
-            }
-            
-            console.log("Priorities:", priorities);  // Array of priority labels
-            console.log("Completed:", completed);    // Array of checkbox statuses (true/false)
-            
-            
-            formData.append('priorities[]', JSON.stringify(priorities));
-            formData.append('completed[]', JSON.stringify(completed));
 
-            fetch('/commit/submit_priorities/', {
-                method: 'POST',
-                body: formData
-            })
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function updateStats(data) {
+        if (!data || !data.length) return;
+        
+        const latestData = data[0];
+        const completed = latestData.completed.filter(x => x).length;
+        const total = latestData.priority.length;
+        const completionRate = Math.round((completed / total) * 100);
+        
+        document.getElementById('completionRate').textContent = `${completionRate}%`;
+        document.getElementById('totalTasks').textContent = total;
+        document.getElementById('streak').textContent = '5 days';
+    }
+    
+    function submitPriorities() {
+        const form = document.getElementById('prioritiesForm');
+        const formData = new FormData(form);
+        
+        const priorities = [];
+        const completed = [];
+        
+        for (let [key, value] of formData.entries()) {
+            if (key.startsWith('priority')) {
+                priorities.push(value);
+                completed.push(form.elements[key].checked);
+            }
+        }
+        
+        formData.append('priorities[]', JSON.stringify(priorities));
+        formData.append('completed[]', JSON.stringify(completed));
+    
+        fetch('/commit/submit_priorities/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Remove the existing chart
+                const chartElement = document.getElementById('prioritiesChart');
+                chartElement.remove();
+                
+                // Create a new canvas
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'prioritiesChart';
+                document.querySelector('.chart-container').appendChild(newCanvas);
+                
+                // Load new data and create new chart
+                loadChart();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+    function loadChart() {
+        fetch('/commit/get_priorities_data/')
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
-                    alert('Priorities submitted successfully!');
-            
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-
-        function loadChart() {
-            fetch('/commit/get_priorities_data/')
-                .then(response => response.json())
-                .then(data => {
+                const prioritiesData = data.data;
+                updateStats(prioritiesData);
+    
+                if (prioritiesData.length > 0) {
+                    const incompletePriorities = prioritiesData[0].priority.filter((_, index) => 
+                        !prioritiesData[0].completed[index]
+                    );
+                    
+                    const container = document.getElementById("priority-item");
+                    container.innerHTML = ''; // Clear existing items
+                    
+                    incompletePriorities.forEach((prior, index) => {
+                        const itemDiv = document.createElement("div");
+                        itemDiv.className = "priority-item";
+                        
+                        const checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        checkbox.className = "checkbox";
+                        checkbox.id = `priority${index + 1}`;
+                        checkbox.value = prior;
+                        checkbox.name = `priority${index + 1}`;
+                        
+                        const label = document.createElement("label");
+                        label.htmlFor = `priority${index + 1}`;
+                        label.textContent = prior;
+                        
+                        itemDiv.appendChild(checkbox);
+                        itemDiv.appendChild(label);
+                        container.appendChild(itemDiv);
+                    });
+    
                     const ctx = document.getElementById('prioritiesChart').getContext('2d');
-                    const prioritiesData = data.data;
-
-                    if((prioritiesData.length)>0){
-                        console.log(prioritiesData[0])
-                        // Extract priorities where `completed` is `false`
-                        const incompletePriorities = prioritiesData[0]['priority'].filter((_, index) => !prioritiesData[0]['completed'][index]);
-
-
-
-                        console.log(typeof(prioritiesData[0]['date']))
-                        console.log(incompletePriorities)
-                        
-                        const container = document.getElementById("priority-item");
-                        // Loop through the priorities array and create checkboxes and labels
-                        incompletePriorities.forEach((prior, index) => {
-                            // Create checkbox element
-                            const checkbox = document.createElement("input");
-                            checkbox.type = "checkbox";
-                            checkbox.className = "checkbox";
-                            checkbox.id = `priority${index + 1}`;
-                            checkbox.value = prior
-                            checkbox.name = `priority${index + 1}`;
-                            
-                            // Create label element
-                            const label = document.createElement("label");
-                            label.htmlFor = `priority${index + 1}`;
-                            label.textContent = prior;
-                            
-                            // Append checkbox and label to the container
-                            container.appendChild(checkbox);
-                            container.appendChild(label);
-                            
-                            // Optionally add a line break for better readability
-                            container.appendChild(document.createElement("br"));
-                        });
-                        
-                        //to make
-                    const labels = prioritiesData[0]['priority'];
-                    console.log(labels);
-                    const completionData = prioritiesData[0]['count'];
-                    console.log(completionData)
                     new Chart(ctx, {
-                        type: 'bar',
+                        type: 'line',
                         data: {
-                            labels: labels,
-                            datasets: [{    
-                                label: 'Priority Completion',
-                                data: completionData,
-                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
+                            labels: prioritiesData[0].priority,
+                            datasets: [{
+                                label: 'Task Completion History',
+                                data: prioritiesData[0].count,
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
                             }]
                         },
                         options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Priority Completion Trends'
+                                }
+                            },
                             scales: {
                                 y: {
-                                    beginAtZero: true
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: '#e2e8f0'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        color: '#e2e8f0'
+                                    }
                                 }
                             }
                         }
                     });
-                } 
+                }
             });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Display today's date
-            const today = new Date();
-            const dateElement = document.getElementById('date');
-            dateElement.textContent = `Today is ${today.toDateString()}`;
-
-            // Load the chart
-            loadChart();
-        });
-    </script>
-    {% endblock  %}
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const today = new Date();
+        const dateElement = document.getElementById('date');
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateElement.textContent = today.toLocaleDateString('en-US', options);
+        
+        loadChart();
+    });
+</script>
+{% endblock %}
