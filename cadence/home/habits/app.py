@@ -60,4 +60,3 @@ def generate_daily_timetable(answers):
         return timetable
     except json.JSONDecodeError: 
         return json.JSONDecodeError
-
