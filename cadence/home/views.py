@@ -328,13 +328,15 @@ def submit_priorities(request):
 
         print("User Email:", user_email)
         print("Completed Priorities:", completed_priorities)
-
+ 
         # Iterate over priorities and update the `completed` field
         for i, priority in enumerate(priorities_data['priority']):
             if priority in completed_priorities:
                 priorities_data['completed'][i] = True  # Mark as completed
                 priorities_data['count'][i] +=1        # increase the count by 1
-
+                
+        #updating the data parameter in the priorities_data , as it gets updated in the session
+        priorities_data['date']=date.today().isoformat()
         print(priorities_data) 
         # Query Firebase for the user's data and update it
         user_priorities = database.child("user_priorities").order_by_child("user_email").equal_to(user_email).get()
@@ -348,11 +350,9 @@ def submit_priorities(request):
         # Optionally, update the session with the modified `priorities_data`
         request.session['priorities_data'] = [priorities_data]
 
-        print("Updated Priorities Data:", priorities_data)
-
         # Return success response
         return JsonResponse({'status': 'success', 'updated_priorities': priorities_data})
-
+ 
 
 def get_priorities_data(request):
     user_email = request.session['email']  # Assuming you can get the user ID from the request

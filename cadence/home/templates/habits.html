@@ -246,6 +246,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     function updateStats(data) {
         if (!data || !data.length) return;
@@ -259,7 +260,6 @@
         document.getElementById('totalTasks').textContent = total;
         document.getElementById('streak').textContent = '5 days';
     }
-    
     function submitPriorities() {
         const form = document.getElementById('prioritiesForm');
         const formData = new FormData(form);
@@ -267,16 +267,24 @@
         const priorities = [];
         const completed = [];
         
+        // Iterate over formData entries
         for (let [key, value] of formData.entries()) {
+            // Check if the key starts with 'priority' to include only priority inputs
             if (key.startsWith('priority')) {
-                priorities.push(value);
+                priorities.push(value);  // Push priority label/text
+        
+                // Check the checkbox's checked status using the `form.elements` API
                 completed.push(form.elements[key].checked);
             }
         }
         
+        console.log("Priorities:", priorities);  // Array of priority labels
+        console.log("Completed:", completed);    // Array of checkbox statuses (true/false)
+        
+        
         formData.append('priorities[]', JSON.stringify(priorities));
         formData.append('completed[]', JSON.stringify(completed));
-    
+
         fetch('/commit/submit_priorities/', {
             method: 'POST',
             body: formData
@@ -284,9 +292,13 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                // Remove the existing chart
+                alert('Priorities submitted successfully!');
                 const chartElement = document.getElementById('prioritiesChart');
                 chartElement.remove();
+                
+                // remove the previous priority data 
+                const container = document.getElementById("priority-item"); 
+                container.remove();
                 
                 // Create a new canvas
                 const newCanvas = document.createElement('canvas');
@@ -295,137 +307,89 @@
                 
                 // Load new data and create new chart
                 loadChart();
+        
             }
         })
         .catch(error => {
             console.error('Error:', error);
         });
     }
-    
+
     function loadChart() {
         fetch('/commit/get_priorities_data/')
             .then(response => response.json())
             .then(data => {
+                const ctx = document.getElementById('prioritiesChart').getContext('2d');
                 const prioritiesData = data.data;
                 updateStats(prioritiesData);
-    
-                if (prioritiesData.length > 0) {
-                    const incompletePriorities = prioritiesData[0].priority.filter((_, index) => 
-                        !prioritiesData[0].completed[index]
-                    );
-                    
+
+                if((prioritiesData.length)>0){
+                    console.log(prioritiesData[0])
+                    // Extract priorities where `completed` is `false`
+                    const incompletePriorities = prioritiesData[0]['priority'].filter((_, index) => !prioritiesData[0]['completed'][index]);
+
+
                     const container = document.getElementById("priority-item");
-                    container.innerHTML = ''; // Clear existing items
-                    
+                    // Loop through the priorities array and create checkboxes and labels
                     incompletePriorities.forEach((prior, index) => {
-                        const itemDiv = document.createElement("div");
-                        itemDiv.className = "priority-item";
-                        
+                        // Create checkbox element
                         const checkbox = document.createElement("input");
                         checkbox.type = "checkbox";
                         checkbox.className = "checkbox";
                         checkbox.id = `priority${index + 1}`;
-                        checkbox.value = prior;
+                        checkbox.value = prior
                         checkbox.name = `priority${index + 1}`;
                         
+                        // Create label element
                         const label = document.createElement("label");
                         label.htmlFor = `priority${index + 1}`;
                         label.textContent = prior;
                         
-                        itemDiv.appendChild(checkbox);
-                        itemDiv.appendChild(label);
-                        container.appendChild(itemDiv);
-                    });
-    
-                    const ctx = document.getElementById('prioritiesChart').getContext('2d');
-                    const prioritiesData = data.data;
-
-                    if((prioritiesData.length)>0){
-                        console.log(prioritiesData[0])
-                        // Extract priorities where `completed` is `false`
-                        const incompletePriorities = prioritiesData[0]['priority'].filter((_, index) => !prioritiesData[0]['completed'][index]);
-
-
-                        const container = document.getElementById("priority-item");
-                        // Loop through the priorities array and create checkboxes and labels
-                        incompletePriorities.forEach((prior, index) => {
-                            // Create checkbox element
-                            const checkbox = document.createElement("input");
-                            checkbox.type = "checkbox";
-                            checkbox.className = "checkbox";
-                            checkbox.id = `priority${index + 1}`;
-                            checkbox.value = prior
-                            checkbox.name = `priority${index + 1}`;
-                            
-                            // Create label element
-                            const label = document.createElement("label");
-                            label.htmlFor = `priority${index + 1}`;
-                            label.textContent = prior;
-                            
-                            // Append checkbox and label to the container
-                            container.appendChild(checkbox);
-                            container.appendChild(label);
-                            
-                            // Optionally add a line break for better readability
-                            container.appendChild(document.createElement("br"));
-                        });
+                        // Append checkbox and label to the container
+                        container.appendChild(checkbox);
+                        container.appendChild(label);
                         
-                        //to make
-                    const labels = prioritiesData[0]['priority'];
-                    console.log(labels);
-                    const completionData = prioritiesData[0]['count'];
-                    console.log(completionData);
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: prioritiesData[0].priority,
-                            datasets: [{
-                                label: 'Task Completion History',
-                                data: prioritiesData[0].count,
-                                borderColor: '#3b82f6',
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Priority Completion Trends'
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    grid: {
-                                        color: '#e2e8f0'
-                                    }
-                                },
-                                x: {
-                                    grid: {
-                                        color: '#e2e8f0'
-                                    }
-                                }
+                        // Optionally add a line break for better readability
+                        container.appendChild(document.createElement("br"));
+                    });
+                    
+                    //to make
+                const labels = prioritiesData[0]['priority'];
+                console.log(labels);
+                const completionData = prioritiesData[0]['count'];
+                console.log(completionData);
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{    
+                            label: 'Priority Completion',
+                            data: completionData,
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
                             }
                         }
-                    });
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Display today's date
-            const today = new Date();
-            const dateElement = document.getElementById('date');
-            dateElement.textContent = `Today is ${today.toDateString()}`;
-
-            // Load the chart
-            loadChart();
+                    }
+                });
+            } 
         });
-    </script>
-    {% endblock  %}
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Display today's date
+        const today = new Date();
+        const dateElement = document.getElementById('date');
+        dateElement.textContent = `Today is ${today.toDateString()}`;
+
+        // Load the chart
+        loadChart();
+    });
+</script>
+{% endblock  %}
